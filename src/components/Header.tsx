@@ -7,13 +7,13 @@ interface HeaderProps {
 
 export function Header({ browserFingerprint }: HeaderProps) {
   return (
-    <header className="border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+    <header className="border-b border-white/5 glass-panel sticky top-0 z-50 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 bg-indigo-600 rounded flex items-center justify-center shadow-lg shadow-indigo-950/40">
           <Layers className="w-6 h-6 text-white animate-pulse" />
         </div>
         <div>
-          <h1 className="text-2xl font-serif text-white italic tracking-tight">
+          <h1 className="text-2xl font-sans font-black text-white tracking-tighter">
             RAVEN-FS{' '}
             <span className="text-xs font-sans not-italic text-indigo-400 font-semibold uppercase tracking-widest ml-2">
               FRAUD SENTINEL INTELLIGENCE ENGINE

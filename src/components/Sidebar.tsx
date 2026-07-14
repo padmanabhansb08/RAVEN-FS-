@@ -51,7 +51,8 @@ export function Sidebar({
   return (
     <section className="lg:col-span-5 flex flex-col gap-4 min-h-0 lg:overflow-y-auto pr-1">
       {/* Card: File upload & OCR Sandbox text-editor */}
-      <div className="bg-[#161618] border border-white/5 rounded-xl p-5 flex flex-col md:min-h-[460px] max-h-[820px] shrink-0">
+      <div className="glass-panel border border-white/5 rounded-xl p-5 flex flex-col md:min-h-[460px] max-h-[820px] shrink-0 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
         <div className="border-b border-white/5 pb-2.5 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4 text-indigo-400" />
@@ -69,7 +70,7 @@ export function Sidebar({
         </div>
 
         {/* Document list tabs */}
-        <div className="flex flex-wrap gap-1 mt-3 bg-[#0A0A0B] border border-white/5 p-1 rounded-md shrink-0">
+        <div className="flex flex-wrap gap-1 mt-3 bg-black/40 border border-white/5 p-1 rounded-md shrink-0 relative z-10">
           {documentsState.map((doc) => {
             const isActive = activeDocTab === doc.id;
             return (
@@ -78,8 +79,8 @@ export function Sidebar({
                 onClick={() => setActiveDocTab(doc.id)}
                 className={`px-3 py-1.5 text-[9.5px] font-mono rounded transition-all leading-none ${
                   isActive
-                    ? 'bg-[#161618] text-white border border-white/5 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                 }`}
               >
                 {doc.name.slice(0, 18)}
@@ -90,8 +91,8 @@ export function Sidebar({
 
         {/* Document editor container */}
         {activeDocObj ? (
-          <div className="mt-4 flex-1 flex flex-col gap-3 min-h-0">
-            <div className="grid grid-cols-2 gap-2 bg-[#0A0A0B] border border-white/5 p-2 rounded-lg text-[9.5px] font-mono text-slate-500 shrink-0">
+          <div className="mt-4 flex-1 flex flex-col gap-3 min-h-0 relative z-10">
+            <div className="grid grid-cols-2 gap-2 bg-black/40 border border-white/5 p-2.5 rounded-lg text-[9.5px] font-mono text-slate-500 shrink-0 shadow-inner">
               <div>
                 <span className="block text-slate-500 gap-1">Category & Subsystem:</span>
                 <span className="text-slate-300 font-bold">{activeDocObj.type}</span>
@@ -118,7 +119,7 @@ export function Sidebar({
               <textarea
                 value={activeDocObj.content}
                 onChange={(e) => handleDocumentContentChange(activeDocObj.id, e.target.value)}
-                className="w-full flex-1 bg-[#0A0A0B] border border-white/5 text-slate-350 text-xs font-mono p-3 focus:outline-none focus:border-indigo-500/40 rounded-lg resize-none leading-relaxed overflow-y-auto selection:bg-indigo-650"
+                className="w-full flex-1 bg-black/40 border border-white/5 text-slate-300 text-xs font-mono p-3 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 rounded-lg resize-none leading-relaxed overflow-y-auto selection:bg-indigo-500/30 shadow-inner transition-all"
                 placeholder="Document OCR output text payload..."
               />
             </div>
@@ -135,8 +136,10 @@ export function Sidebar({
       </div>
 
       {/* Card: Managed AI Security Agent Configuration */}
-      <div className="bg-[#161618] border border-white/5 p-5 rounded-xl flex flex-col gap-4 shrink-0">
-        <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+      <div className="glass-panel border border-white/5 p-5 rounded-xl flex flex-col gap-4 shrink-0 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col gap-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
           <h2 className="text-[#94a3b8] text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 leading-none">
             <Briefcase className="w-4 h-4 text-indigo-400" />
             Managed Auditor Agent Setup
@@ -262,13 +265,14 @@ export function Sidebar({
           disabled={isAnalyzing || documentsState.length === 0}
           className={`w-full py-2.5 rounded font-mono text-xs tracking-widest uppercase font-bold text-white transition flex items-center justify-center gap-1.5 shadow-md ${
             isAnalyzing || documentsState.length === 0
-              ? 'bg-slate-850 border border-white/5 text-slate-500 cursor-not-allowed'
-              : 'bg-indigo-650 hover:bg-indigo-750 cursor-pointer shadow-indigo-950/30'
+              ? 'bg-slate-800 border border-white/5 text-slate-500 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer glow-indigo'
           }`}
         >
-          <Sparkles className="w-4 h-4 animate-spin text-indigo-300" />
+          <Sparkles className={`w-4 h-4 text-indigo-200 ${isAnalyzing ? 'animate-spin' : ''}`} />
           {isAnalyzing ? 'Executing Multi-Doc verification...' : 'Execute Managed Agentic Sweep'}
         </button>
+        </div>
       </div>
     </section>
   );

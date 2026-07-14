@@ -227,7 +227,7 @@ export default function App() {
   const activeDocObj = documentsState.find((d) => d.id === activeDocTab);
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#0A0A0B] text-slate-350 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-transparent text-slate-350 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white">
       <Header browserFingerprint={browserFingerprint} />
 
       {/* Main relational desktop workspace */}
@@ -266,8 +266,8 @@ export default function App() {
       </main>
 
       {/* Persistent footer */}
-      <footer className="border-t border-white/5 bg-[#0A0A0B] px-6 py-4 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[9px] text-slate-500 select-none">
+      <footer className="glass-panel border-t border-white/5 px-6 py-4 mt-auto z-10 relative">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[9px] text-slate-400 select-none">
           <div className="flex items-center gap-1.5">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
             <span>RAVEN-FS Intelligence Suite v2.2 (Google AI Studio)</span>
