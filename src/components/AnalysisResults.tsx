@@ -65,12 +65,12 @@ export function AnalysisResults({
     );
   } else {
     content = (
-      <div className="bg-[#161618] border border-white/5 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[500px]">
-        <Database className="w-10 h-10 text-slate-650 animate-pulse" />
-        <h3 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mt-4">
+      <div className="glass-panel border border-white/5 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[500px]">
+        <Database className="w-12 h-12 text-slate-700 animate-pulse" />
+        <h3 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mt-5">
           Workspace Awaiting Active Scan
         </h3>
-        <p className="text-xs text-slate-500 font-sans mt-2">
+        <p className="text-xs text-slate-500 font-sans mt-2 max-w-sm">
           Upload call records, transaction logs, and account linkages. RAVEN will detect coordinated fraud patterns and map the ring topology.
         </p>
       </div>

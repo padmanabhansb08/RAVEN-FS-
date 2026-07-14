@@ -89,8 +89,8 @@ export function VerdictHeader({
         )}
       </div>
 
-      <div className="bg-[#161618] border border-white/5 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shrink-0">
-        <span className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full filter blur-3xl"></span>
+      <div className="glass-panel border border-white/5 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shrink-0 shadow-2xl">
+        <span className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full filter blur-3xl pointer-events-none"></span>
 
         <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto">
           {/* Circle score metric */}
@@ -113,11 +113,11 @@ export function VerdictHeader({
                 fill="transparent"
                 strokeDasharray={2 * Math.PI * 40}
                 strokeDashoffset={2 * Math.PI * 40 * (1 - analysisResult.score / 100)}
-                className="transition-all duration-1000 ease-out"
+                className="transition-all duration-1000 ease-out drop-shadow-[0_0_8px_currentColor]"
               />
             </svg>
             <div className="absolute text-center">
-              <span className="text-2xl font-serif text-white italic leading-none">
+              <span className="text-3xl font-sans font-black text-white leading-none tracking-tighter">
                 {analysisResult.score}
               </span>
               <p

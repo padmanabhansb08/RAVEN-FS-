@@ -10,21 +10,22 @@ export function AgenticSweepProgress({
   stageOutputs,
 }: AgenticSweepProgressProps) {
   return (
-    <div className="bg-[#161618] border border-white/5 rounded-xl p-6 flex flex-col gap-6 min-h-[540px]">
-      <div className="border-b border-white/5 pb-3 flex justify-between items-center">
+    <div className="glass-panel border border-white/5 rounded-xl p-6 flex flex-col gap-6 min-h-[540px] relative overflow-hidden shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none"></div>
+      <div className="border-b border-white/5 pb-3 flex justify-between items-center relative z-10">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-indigo-400 animate-pulse" />
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-350">
             Active Multi-Layer Agentic Sweep
           </span>
         </div>
-        <span className="text-[9px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 px-2 py-0.5 rounded font-bold uppercase animate-pulse">
+        <span className="text-[9px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 px-2 py-0.5 rounded font-bold uppercase animate-pulse glow-indigo shadow-[0_0_15px_rgba(99,102,241,0.2)]">
           Sweeping Ledger...
         </span>
       </div>
 
       {/* Steps Layout */}
-      <div className="flex-1 flex flex-col gap-4">
+      <div className="flex-1 flex flex-col gap-4 relative z-10">
         {[
           {
             id: 1,
@@ -81,9 +82,9 @@ export function AgenticSweepProgress({
           let bgColor = "bg-black/20 border-white/5 opacity-40 select-none";
           if (isActive) {
             bgColor =
-              "bg-indigo-950/15 border-indigo-500/40 shadow-md shadow-indigo-950/30 ring-1 ring-indigo-500/20";
+              "bg-indigo-900/20 border-indigo-500/40 shadow-[0_0_20px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/30 glow-indigo backdrop-blur-md";
           } else if (isDone) {
-            bgColor = "bg-[#0A0A0B]/40 border-emerald-500/20";
+            bgColor = "bg-emerald-900/10 border-emerald-500/20";
           }
 
           return (
@@ -125,9 +126,9 @@ export function AgenticSweepProgress({
 
               {/* Display active detailed message output parsed on this loading layer */}
               {(isActive || isDone) && (
-                <div className="mt-2 text-[11px] font-mono bg-[#0A0A0B]/85 border border-white/5 rounded-lg p-3 text-slate-300 select-text leading-relaxed animate-fade-in flex items-center gap-1.5 break-all">
+                <div className={`mt-2 text-[11px] font-mono ${isActive ? 'bg-black/40 border-indigo-500/20 shadow-inner' : 'bg-black/30 border-white/5'} border rounded-lg p-3 text-slate-300 select-text leading-relaxed animate-fade-in flex items-center gap-2 break-all`}>
                   {!isDone && (
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping shrink-0"></span>
                   )}
                   <span>{stageOutputs[step.id]}</span>
                 </div>
@@ -138,12 +139,12 @@ export function AgenticSweepProgress({
       </div>
 
       {/* Progress and tips */}
-      <div className="border-t border-white/5 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[10px] text-slate-500">
-        <span className="flex items-center gap-1.5">
+      <div className="border-t border-white/5 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[10px] text-slate-500 relative z-10">
+        <span className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-indigo-400 animate-spin" />
-          Tracing ledger entries... {(activeStageId - 1) * 25 || 5}% Complete
+          <span className="text-indigo-300 font-bold">Tracing ledger entries...</span> {(activeStageId - 1) * 25 || 5}% Complete
         </span>
-        <span className="text-slate-600 text-[9px] uppercase tracking-wider">
+        <span className="text-indigo-500/70 text-[9px] uppercase tracking-widest font-bold">
           DO NOT CLOSE THIS TERMINAL TAB
         </span>
       </div>

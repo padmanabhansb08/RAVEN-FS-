@@ -7,7 +7,7 @@ interface ComplianceDirectivesProps {
 
 export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesProps) {
   return (
-    <div className="bg-[#161618] border border-white/5 p-5 rounded-xl space-y-4">
+    <div className="glass-panel border border-white/5 p-5 rounded-xl space-y-4 shadow-lg">
       <div className="border-b border-white/5 pb-2 flex justify-between items-center">
         <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
           <Scale className="w-4 h-4 text-indigo-400" />
@@ -19,7 +19,7 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-black/35 border border-white/5 rounded-lg p-3.5 space-y-1 select-all">
+        <div className="glass-panel border border-white/5 rounded-lg p-3.5 space-y-1 select-all shadow-inner relative z-10">
           <span className="text-slate-500 block text-[8px] tracking-wider uppercase font-bold font-mono">
             Recommended Compliance Action
           </span>
@@ -28,11 +28,11 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
           </p>
         </div>
 
-        <div className="bg-black/35 border border-white/5 rounded-lg p-3.5 space-y-1 select-all">
+        <div className="glass-panel border border-white/5 rounded-lg p-3.5 space-y-1 select-all shadow-inner relative z-10">
           <span className="text-slate-500 block text-[8px] tracking-wider uppercase font-bold font-mono">
             Applicable Enforcement Guideline
           </span>
-          <p className="text-xs text-slate-350 leading-relaxed font-sans">
+          <p className="text-xs text-slate-300 leading-relaxed font-sans">
             {analysisResult.caseFileDetails.ncrbComplianceNote}
           </p>
         </div>
@@ -64,9 +64,9 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
             navigator.clipboard.writeText(reportText);
             alert('Official Case File data copied successfully to clipboard!');
           }}
-          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto bg-[#0a0a0b] border border-white/5 hover:bg-black hover:border-white/10 cursor-pointer text-slate-300 text-[10.5px] font-mono tracking-widest uppercase font-bold px-4 py-2.5 rounded transition"
+          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto bg-black/40 border border-white/5 hover:bg-black/60 hover:border-white/10 cursor-pointer text-slate-300 text-[10.5px] font-mono tracking-widest uppercase font-bold px-4 py-2.5 rounded transition shadow-inner"
         >
-          <Check className="w-4 h-4 text-emerald-400 animate-[bounce_1.5s_infinite]" />
+          <Check className="w-4 h-4 text-emerald-400 animate-[pulse_1.5s_infinite]" />
           Copy Enforcement Report
         </button>
       </div>

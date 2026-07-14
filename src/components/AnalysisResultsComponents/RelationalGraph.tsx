@@ -16,8 +16,9 @@ export function RelationalGraph({
   setSelectedNode,
 }: RelationalGraphProps) {
   return (
-    <div className="bg-[#161618] border border-white/5 p-5 rounded-xl space-y-4">
-      <div className="border-b border-white/5 pb-2 flex justify-between items-center flex-wrap gap-2">
+    <div className="glass-panel border border-white/5 p-5 rounded-xl space-y-4 shadow-lg relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+      <div className="border-b border-white/5 pb-2 flex justify-between items-center flex-wrap gap-2 relative z-10">
         <div>
           <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
             <Terminal className="w-4 h-4 text-indigo-400" />
@@ -38,7 +39,7 @@ export function RelationalGraph({
       </div>
 
       {/* Interactive Network Graph render */}
-      <div className="bg-black/35 rounded-xl border border-white/5 overflow-hidden">
+      <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shadow-inner relative z-10">
         <NetworkGraph
           nodes={analysisResult.graphNodes}
           edges={analysisResult.graphEdges}

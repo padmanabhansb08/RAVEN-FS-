@@ -118,11 +118,11 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
   const activeNode = nodes.find((n) => n.id === selectedNodeId);
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 bg-[#161618] rounded-xl border border-white/5 p-5 mt-4 min-h-[460px]">
+    <div className="flex flex-col xl:flex-row gap-6 glass-panel rounded-xl border border-white/5 p-5 mt-4 min-h-[460px] shadow-lg">
       {/* SVG Canvas Area */}
-      <div className="flex-1 relative border border-white/5 rounded-lg overflow-hidden bg-[#0A0A0B] min-h-[380px] flex items-center justify-center">
+      <div className="flex-1 relative border border-white/5 rounded-lg overflow-hidden bg-black/40 shadow-inner min-h-[380px] flex items-center justify-center">
         {/* Absolute indicators in background */}
-        <div className="absolute top-3 left-3 flex items-center gap-2 bg-[#161618] border border-white/5 px-3 py-1.5 rounded-md text-xs font-mono">
+        <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-md text-xs font-mono shadow-sm">
           <Network className="w-4 h-4 text-indigo-400 animate-pulse" />
           <span className="text-slate-400">Layer 3 Graph Traversal Active:</span>
           <span className="text-indigo-400 font-semibold">{nodes.length} nodes mapped</span>
@@ -248,14 +248,14 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
                     cx={coord.x}
                     cy={coord.y}
                     r={isSelected ? '22' : '18'}
-                    className={`transition-all duration-300 fill-slate-950 stroke-2 ${
+                    className={`transition-all duration-300 fill-black/60 stroke-2 drop-shadow-[0_0_8px_rgba(99,102,241,0.3)] ${
                       isSelected
-                        ? 'stroke-sky-400/90 shadow-lg'
+                        ? 'stroke-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]'
                         : isFlagged
-                          ? 'stroke-rose-500/80 group-hover:stroke-rose-400'
+                          ? 'stroke-rose-500/80 group-hover:stroke-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]'
                           : node.status === 'verified'
-                            ? 'stroke-emerald-500/80 group-hover:stroke-emerald-400'
-                            : 'stroke-slate-700 group-hover:stroke-sky-400'
+                            ? 'stroke-emerald-500/80 group-hover:stroke-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+                            : 'stroke-slate-600 group-hover:stroke-sky-400'
                     }`}
                   />
 
@@ -295,7 +295,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
       </div>
 
       {/* Selected Node Details Sidepanel */}
-      <div className="w-full xl:w-72 bg-black/40 border border-white/5 rounded-lg p-4 flex flex-col justify-between">
+      <div className="w-full xl:w-72 glass-panel border border-white/5 rounded-lg p-4 flex flex-col justify-between shadow-inner relative z-10">
         <div>
           <h4 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase border-b border-white/5 pb-2 flex items-center gap-1.5">
             <ShieldAlert className="w-4 h-4 text-indigo-400" />
