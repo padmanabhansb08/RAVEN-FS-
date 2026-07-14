@@ -174,7 +174,7 @@ describe('POST /api/analyze', () => {
     const response = await request(app)
       .post('/api/analyze')
       .field('engineMode', 'local')
-      .attach('files', Buffer.from('test text content'), 'John_Doe_Salary_Slip.pdf');
+      .attach('files', Buffer.from('test text content'), 'Victim_Transaction_Log.pdf');
 
     expect(response.status).toBe(200);
 
@@ -192,7 +192,7 @@ describe('POST /api/analyze', () => {
 
     expect(passedDocs).toBeDefined();
     expect(passedDocs.length).toBeGreaterThan(0);
-    expect(passedDocs[0].name).toBe('John_Doe_Salary_Slip.pdf');
-    expect(passedDocs[0].type).toBe('SALARY_SLIP');
+    expect(passedDocs[0].name).toBe('Victim_Transaction_Log.pdf');
+    expect(passedDocs[0].type).toBe('TRANSACTION_LOG');
   });
 });

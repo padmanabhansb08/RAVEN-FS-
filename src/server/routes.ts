@@ -80,32 +80,35 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
       }
 
       // Automatically guess the document type from name
-      let guessedType: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER' =
+      let guessedType: 'CALL_RECORD' | 'TRANSACTION_LOG' | 'ACCOUNT_LINKAGE' | 'DEVICE_LOG' | 'VICTIM_REPORT' | 'OTHER' =
         'OTHER';
       const lowerName = file.originalname.toLowerCase();
-      if (lowerName.includes('itr') || lowerName.includes('tax') || lowerName.includes('return')) {
-        guessedType = 'ITR';
+      if (lowerName.includes('call') || lowerName.includes('cdr')) {
+        guessedType = 'CALL_RECORD';
       } else if (
-        lowerName.includes('salary') ||
-        lowerName.includes('slip') ||
-        lowerName.includes('pay') ||
-        lowerName.includes('earnings')
+        lowerName.includes('txn') ||
+        lowerName.includes('transaction') ||
+        lowerName.includes('upi')
       ) {
-        guessedType = 'SALARY_SLIP';
+        guessedType = 'TRANSACTION_LOG';
       } else if (
-        lowerName.includes('property') ||
-        lowerName.includes('deed') ||
-        lowerName.includes('valuation') ||
-        lowerName.includes('asset')
+        lowerName.includes('account') ||
+        lowerName.includes('linkage') ||
+        lowerName.includes('kyc')
       ) {
-        guessedType = 'PROPERTY_VALUATION';
+        guessedType = 'ACCOUNT_LINKAGE';
       } else if (
-        lowerName.includes('id') ||
-        lowerName.includes('pan') ||
-        lowerName.includes('aadhaar') ||
-        lowerName.includes('passport')
+        lowerName.includes('device') ||
+        lowerName.includes('imei') ||
+        lowerName.includes('fp')
       ) {
-        guessedType = 'ID_PROOF';
+        guessedType = 'DEVICE_LOG';
+      } else if (
+        lowerName.includes('victim') ||
+        lowerName.includes('complaint') ||
+        lowerName.includes('report')
+      ) {
+        guessedType = 'VICTIM_REPORT';
       }
 
       const cleanFileName = file.originalname.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
@@ -147,7 +150,7 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
   // Inject client fingerprint logs if any matching context is available
   if (clientFingerprintId && documents.length > 0) {
     documents = documents.map((doc) => {
-      if (doc.type === 'ID_PROOF' && doc.content.includes('fp-88a29b4e')) {
+      if (doc.type === 'DEVICE_LOG' && doc.content.includes('fp-88a29b4e')) {
         return {
           ...doc,
           content: doc.content.replace('fp-88a29b4e', clientFingerprintId),
@@ -212,16 +215,15 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
       });
     }
 
-    const systemPrompt = `You are Raven, a super sharp pet detective and pet document cross-checker.
-Your job is to spawn out a lot of AI agents to cross check all the documentation that the user provides, regardless of under what category or classification those documentation falls into.
-Look out for all red flags. Your primary task is TO VERIFY THE STORY and find contradictions.
-Check for clashes/contradictions across the documents (e.g., matching or discrepant income figures between ITR and salary certificates, mismatched registration dates, visual/graphic template modifications, identical device signatures across separate applicants).
+    const systemPrompt = `You are Raven, an advanced cybercrime intelligence agent specializing in Fraud Network Graph Intelligence.
+Your primary task is to cross-reference disjointed records (call records, transaction logs, account linkages, device logs) to detect coordinated digital-arrest and money-mule rings.
+Look out for relational contradictions that no single document reveals alone: shared devices across "unrelated" accounts, funds routed through mule chains, spoofed-number call patterns, and registration-timing collisions.
 
 You operate across 4 layers of intelligence:
 1. Ingestion: Analyze fields from provided files.
-2. Cross-Document Coherence: Flags mismatches (income, identity, dates, addresses, employers) that span multiple documents.
-3. Graph & Fraud Ring Detection: Create logic nodes (person, property, address, device, employer, phone) and edges representing links. Flag dangerous edges or clusters (e.g. sharing device fingerprint across separate ID filings, pixel-level salary templates).
-4. Case File compilation: Produce a structured weighted risk score (0-100) and actionable decision.
+2. Cross-Document Coherence: Flags mismatches (funds routed to different owners, shared devices across accounts).
+3. Graph & Fraud Ring Detection: Create logic nodes (person, property, address, device, employer, phone, account, transaction) and edges.
+4. Case File compilation: Produce a structured weighted risk score (0-100) and actionable law-enforcement filing guidance.
 
 Analyze the documents below. You MUST respond in valid JSON format. Follow the strict schema exactly.`;
 
@@ -289,7 +291,7 @@ Analyze the documents below. You MUST respond in valid JSON format. Follow the s
                   label: { type: Type.STRING, description: 'Short human label' },
                   type: {
                     type: Type.STRING,
-                    description: 'person, property, address, device, employer, or phone',
+                    description: 'person, property, address, device, employer, phone, account, or transaction',
                   },
                   status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
                   details: { type: Type.STRING },
@@ -331,17 +333,17 @@ Analyze the documents below. You MUST respond in valid JSON format. Follow the s
             caseFileDetails: {
               type: Type.OBJECT,
               properties: {
-                bankActionRequired: {
+                enforcementActionRequired: {
                   type: Type.STRING,
-                  description: 'Concrete immediate operations tasks for risk team.',
+                  description: 'Actionable law-enforcement filing guidance, e.g., recommend NCRB/cybercrime-portal filing.',
                 },
-                rbiComplianceWarning: {
+                ncrbComplianceNote: {
                   type: Type.STRING,
-                  description: 'Direct guidelines under RBI standards.',
+                  description: 'Guidance on court-admissible packaging and cross-jurisdiction linkages.',
                 },
                 recommendingRejection: { type: Type.BOOLEAN },
               },
-              required: ['bankActionRequired', 'rbiComplianceWarning', 'recommendingRejection'],
+              required: ['enforcementActionRequired', 'ncrbComplianceNote', 'recommendingRejection'],
             },
           },
           required: [

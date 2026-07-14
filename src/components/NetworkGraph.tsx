@@ -8,6 +8,9 @@ import {
   Smartphone,
   Fingerprint,
   ShieldAlert,
+  CreditCard,
+  Landmark,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -73,6 +76,10 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
         return <Smartphone className={`${baseColor} w-5 h-5`} />;
       case 'device':
         return <Fingerprint className={`${baseColor} w-5 h-5`} />;
+      case 'account':
+        return <CreditCard className={`${baseColor} w-5 h-5`} />;
+      case 'transaction':
+        return <ArrowLeftRight className={`${baseColor} w-5 h-5`} />;
       default:
         return <Network className={`${baseColor} w-5 h-5`} />;
     }

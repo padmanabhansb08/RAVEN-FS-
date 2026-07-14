@@ -14,7 +14,7 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
           Section 4: Executive Compliance Directives & Action logs
         </h4>
         <span className="text-[9.5px] font-mono text-slate-500 font-bold leading-none select-none">
-          RBI Guidelines check
+          Cybercrime Compliance Check
         </span>
       </div>
 
@@ -24,16 +24,16 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
             Recommended Compliance Action
           </span>
           <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
-            {analysisResult.caseFileDetails.bankActionRequired}
+            {analysisResult.caseFileDetails.enforcementActionRequired}
           </p>
         </div>
 
         <div className="bg-black/35 border border-white/5 rounded-lg p-3.5 space-y-1 select-all">
           <span className="text-slate-500 block text-[8px] tracking-wider uppercase font-bold font-mono">
-            Governing Legal Notice Circular
+            Applicable Enforcement Guideline
           </span>
           <p className="text-xs text-slate-350 leading-relaxed font-sans">
-            {analysisResult.caseFileDetails.rbiComplianceWarning}
+            {analysisResult.caseFileDetails.ncrbComplianceNote}
           </p>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesPro
 
         <button
           onClick={() => {
-            const reportText = `[RAVEN RELATIONAL AUDIT REPORT]\nVerdict: ${analysisResult.verdict}\nDeficit risk rating: ${analysisResult.score}/100\nCore Summary: ${analysisResult.summary}\nRBI compliant warning: ${analysisResult.caseFileDetails.rbiComplianceWarning}\nImmediate underwriter duty: ${analysisResult.caseFileDetails.bankActionRequired}`;
+            const reportText = `[RAVEN RELATIONAL AUDIT REPORT]\nVerdict: ${analysisResult.verdict}\nDeficit risk rating: ${analysisResult.score}/100\nCore Summary: ${analysisResult.summary}\nLaw Enforcement Notice: ${analysisResult.caseFileDetails.ncrbComplianceNote}\nImmediate Action Duty: ${analysisResult.caseFileDetails.enforcementActionRequired}`;
             navigator.clipboard.writeText(reportText);
             alert('Official Case File data copied successfully to clipboard!');
           }}

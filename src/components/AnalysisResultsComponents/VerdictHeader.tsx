@@ -160,8 +160,8 @@ export function VerdictHeader({
               }
             >
               {analysisResult.caseFileDetails.recommendingRejection
-                ? 'REJECT ROUTE'
-                : 'STANDARD PASS'}
+                ? 'ESCALATE TO NCRB'
+                : 'NO ACTION FLAGGED'}
             </span>
           </div>
           <div className="flex justify-between items-center gap-4">

@@ -14,7 +14,7 @@ export interface ExtractedEntity {
 export interface GraphNode {
   id: string;
   label: string;
-  type: 'person' | 'property' | 'address' | 'device' | 'employer' | 'phone';
+  type: 'person' | 'property' | 'address' | 'device' | 'employer' | 'phone' | 'account' | 'transaction';
   status: 'flagged' | 'neutral' | 'verified';
   details?: string;
 }
@@ -42,8 +42,8 @@ export interface AnalysisResult {
   graphEdges: GraphEdge[];
   tamperedSignatures: TamperedSignature[];
   caseFileDetails: {
-    bankActionRequired: string;
-    rbiComplianceWarning: string;
+    enforcementActionRequired: string;
+    ncrbComplianceNote: string;
     recommendingRejection: boolean;
   };
   deviceFingerprintLog?: string;
@@ -65,7 +65,7 @@ export interface AnalysisResult {
 export interface DocumentItem {
   id: string;
   name: string;
-  type: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER';
+  type: 'CALL_RECORD' | 'TRANSACTION_LOG' | 'ACCOUNT_LINKAGE' | 'DEVICE_LOG' | 'VICTIM_REPORT' | 'OTHER';
   content: string;
   metadata?: {
     fileSize?: string;
