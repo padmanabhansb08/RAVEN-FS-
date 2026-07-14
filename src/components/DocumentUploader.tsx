@@ -247,7 +247,7 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
         <div className="flex items-center gap-1.5">
           <UploadCloud className="w-4 h-4 text-indigo-400" />
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
-            FineUploader Live Document Ingestion Panel
+            MULTI-SOURCE DOCUMENT INGESTION LAYER
           </span>
         </div>
         <span className="text-[10px] text-slate-500 font-mono font-bold tracking-widest uppercase bg-indigo-500/5 px-2 py-0.5 rounded border border-indigo-500/20">
@@ -286,7 +286,7 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
             <span className="text-indigo-400 font-mono">Browse Files</span>
           </p>
           <p className="text-[10px] text-slate-500 font-mono leading-relaxed">
-            Accepting PDF, Images (PNG, JPG, Scanned Docs) & TXT up to 10MB
+            Supporting call records, transaction logs, account linkages, device fingerprints, victim reports
           </p>
         </div>
       </div>

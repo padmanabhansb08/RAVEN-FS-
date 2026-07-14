@@ -35,9 +35,9 @@ export default function App() {
   });
 
   const [useManagedAgent, setUseManagedAgent] = useState<boolean>(true);
-  const [managedAgentId, setManagedAgentId] = useState<string>('raven-coherence-auditor');
+  const [managedAgentId, setManagedAgentId] = useState<string>('raven-fraud-ring-detector');
   const [customDirectives, setCustomDirectives] = useState<string>(
-    'Cross-verify applicant tax dossiers collectively, audit core employer mismatch parameters, trace duplicate device IDs, and run topological DFS traversals.',
+    'Identify coordinated fraud rings by correlating call records, transaction flows, and device fingerprints across multiple accounts. Detect mule-chain patterns, spoofed-number sequences, and shared-device collisions. Map fraud network topology and generate law-enforcement intelligence packages for NCRB filing.',
   );
 
   const [engineMode, setEngineMode] = useState<'gemini' | 'local'>(() => {
@@ -188,7 +188,7 @@ export default function App() {
       await delay(1100);
 
       // --- LAYER 4 STREAMING TRANSITION ---
-      const layer4Success = `Compliance Executed: Final threat weight rating compiled at ${data.score}/100. Case dossier ready.`;
+      const layer4Success = `Enforcement Executed: Final threat weight rating compiled at ${data.score}/100. Intelligence package ready.`;
       setStageOutputs((prev) => ({
         ...prev,
         4: layer4Success,
@@ -270,7 +270,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[9px] text-slate-500 select-none">
           <div className="flex items-center gap-1.5">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-            <span>RAVEN Relational Gated Network Suite v2.2 (Google AI Studio)</span>
+            <span>RAVEN-FS Intelligence Suite v2.2 (Google AI Studio)</span>
           </div>
           <div className="text-indigo-400/70 uppercase tracking-widest font-bold flex items-center gap-1">
             <Award className="w-3.5 h-3.5 text-indigo-400" />

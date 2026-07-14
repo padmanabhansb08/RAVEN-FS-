@@ -71,7 +71,7 @@ export function AnalysisResults({
           Workspace Awaiting Active Scan
         </h3>
         <p className="text-xs text-slate-500 font-sans mt-2">
-          Adjust agent directives on the left and trigger verification to run sweeps.
+          Upload call records, transaction logs, and account linkages. RAVEN will detect coordinated fraud patterns and map the ring topology.
         </p>
       </div>
     );

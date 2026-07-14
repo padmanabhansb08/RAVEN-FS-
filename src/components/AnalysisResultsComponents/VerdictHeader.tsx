@@ -73,7 +73,7 @@ export function VerdictHeader({
             <div className="bg-black/35 border border-white/5 rounded-lg p-2.5 flex items-start gap-3 max-w-xs shrink-0 hidden md:flex">
               <div>
                 <span className="font-bold uppercase block text-[10px]">
-                  LOCAL HEURISTICS EXECUTION
+                  LOCAL PATTERN DETECTION ENGINE
                 </span>
                 <p className="text-[11px] text-slate-400 font-sans mt-0.5 leading-relaxed">
                   Evaluated using RAVEN&apos;s fully optimized multi-document coherence ruleset. Set
@@ -151,7 +151,7 @@ export function VerdictHeader({
         {/* Score indicators panel */}
         <div className="flex flex-col gap-1.5 shrink-0 w-full sm:w-auto md:max-w-[200px] border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-5 font-mono text-[10px]">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase font-medium">Compliance Tag:</span>
+            <span className="text-slate-500 uppercase font-medium">Enforcement Tag:</span>
             <span
               className={
                 analysisResult.caseFileDetails.recommendingRejection
@@ -165,7 +165,7 @@ export function VerdictHeader({
             </span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase">Clash Contradictions:</span>
+            <span className="text-slate-500 uppercase">Network Anomalies:</span>
             <span
               className={
                 analysisResult.contradictions.length > 0
@@ -177,7 +177,7 @@ export function VerdictHeader({
             </span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase">Dossier Vertices:</span>
+            <span className="text-slate-500 uppercase">Network Nodes:</span>
             <span className="text-indigo-400 font-bold">
               {analysisResult.graphNodes.length} mapped
             </span>

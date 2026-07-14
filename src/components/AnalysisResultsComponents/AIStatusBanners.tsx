@@ -38,7 +38,7 @@ export function AIStatusBanners({ analysisResult }: AIStatusBannersProps) {
       <div className="flex items-center gap-2 text-indigo-400">
         <Sparkles className="w-5 h-5 shrink-0 text-indigo-400 animate-pulse" />
         <div>
-          <span className="font-bold uppercase block text-[10px]">LOCAL HEURISTICS EXECUTION</span>
+          <span className="font-bold uppercase block text-[10px]">LOCAL PATTERN DETECTION ENGINE</span>
           <p className="text-[11px] text-slate-400 font-sans mt-0.5 leading-relaxed">
             Evaluated using RAVEN&apos;s fully optimized multi-document coherence ruleset. Set
             GEMINI_API_KEY inside Settings drawer to fully enable LLM deep-reasoning tree

@@ -56,11 +56,11 @@ export function Sidebar({
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4 text-indigo-400" />
             <h3 className="text-xs font-mono font-bold tracking-widest text-[#94a3b8] uppercase">
-              Dossier Document Sandbox & OCR Workspace
+              FRAUD NETWORK EVIDENCE COLLECTION & ANALYSIS WORKSPACE
             </h3>
           </div>
           <span className="text-[9px] font-mono bg-indigo-500/10 border border-indigo-550/10 px-2 py-0.5 rounded text-indigo-450 uppercase font-bold">
-            Local Vault
+            SECURE VAULT
           </span>
         </div>
 
@@ -126,7 +126,7 @@ export function Sidebar({
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-600 font-mono mt-8">
             <FileText className="w-10 h-10 text-slate-700 animate-pulse" />
-            <p className="text-[10px] uppercase mt-2">Dossier Workspace is Empty</p>
+            <p className="text-[10px] uppercase mt-2">Network Workspace is Empty</p>
             <p className="text-[9px] text-slate-500 text-center max-w-xs mt-1">
               Upload files or click 'Reset Default templates' to prepopulate core evaluation files.
             </p>
@@ -225,7 +225,7 @@ export function Sidebar({
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                Local Heuristic
+                Local Pattern Detection Engine
               </button>
             </div>
           </div>
