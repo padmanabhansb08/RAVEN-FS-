@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -8,11 +8,34 @@
 
 /* Custom premium styling features */
 body {
-  background: radial-gradient(circle at 50% 0%, #111827 0%, #020617 100%);
+  background:
+    radial-gradient(circle at top, rgba(168, 85, 247, 0.22), transparent 28%),
+    radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.15), transparent 24%),
+    linear-gradient(180deg, #05040a 0%, #090814 55%, #030306 100%);
   background-attachment: fixed;
-  color: #cbd5e1; /* text-slate-300 */
+  color: #cbd5e1;
   font-family: var(--font-sans);
   min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 80%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .glow-indigo {
@@ -28,11 +51,11 @@ body {
 }
 
 .glass-panel {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(10, 10, 16, 0.64);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
 }
 
 ::-webkit-scrollbar {
@@ -50,5 +73,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #5b21b6;
+}
+
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color: #fff;
 }

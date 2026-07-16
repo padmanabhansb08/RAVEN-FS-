@@ -16,30 +16,28 @@ export function RelationalGraph({
   setSelectedNode,
 }: RelationalGraphProps) {
   return (
-    <div className="glass-panel border border-white/5 p-5 rounded-xl space-y-4 shadow-lg relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-      <div className="border-b border-white/5 pb-2 flex justify-between items-center flex-wrap gap-2 relative z-10">
+    <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 space-y-4">
+      <div className="border-b border-white/10 pb-3 flex justify-between items-center flex-wrap gap-2">
         <div>
-          <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-            <Terminal className="w-4 h-4 text-indigo-400" />
-            Section 2: Dossier Relational Graph & Cluster traversal
+          <h4 className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-200 flex items-center gap-1.5">
+            <Terminal className="w-4 h-4 text-violet-300" />
+            Relationship graph
           </h4>
-          <p className="text-[9.5px] text-slate-500 font-sans mt-0.5">
-            Click vertices to query extracted metadata and trace connections.
+          <p className="text-[9.5px] text-slate-500 mt-0.5">
+            Select nodes to inspect links and extracted details.
           </p>
         </div>
         <div className="flex gap-1.5 text-[9.5px] font-mono shrink-0">
-          <span className="bg-slate-900 border border-white/5 px-2 py-0.5 rounded text-slate-400 font-semibold">
-            Nodes: <strong className="text-indigo-400">{analysisResult.graphNodes.length}</strong>
+          <span className="bg-black/30 border border-white/10 px-2 py-0.5 rounded-full text-slate-400 font-semibold">
+            Nodes: <strong className="text-violet-300">{analysisResult.graphNodes.length}</strong>
           </span>
-          <span className="bg-slate-900 border border-white/5 px-2 py-0.5 rounded text-slate-400 font-semibold">
-            Edges: <strong className="text-indigo-400">{analysisResult.graphEdges.length}</strong>
+          <span className="bg-black/30 border border-white/10 px-2 py-0.5 rounded-full text-slate-400 font-semibold">
+            Edges: <strong className="text-violet-300">{analysisResult.graphEdges.length}</strong>
           </span>
         </div>
       </div>
 
-      {/* Interactive Network Graph render */}
-      <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shadow-inner relative z-10">
+      <div className="bg-black/30 rounded-2xl border border-white/10 overflow-hidden">
         <NetworkGraph
           nodes={analysisResult.graphNodes}
           edges={analysisResult.graphEdges}
@@ -47,37 +45,35 @@ export function RelationalGraph({
         />
       </div>
 
-      {/* Node inspector sidebar */}
       <AnimatePresence>
         {selectedNode && (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
-            className="bg-indigo-950/20 border border-indigo-505/20 rounded-xl p-4 space-y-2 select-text"
+            className="rounded-2xl border border-violet-500/20 bg-violet-500/8 p-4 space-y-2"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-              <span className="text-[10px] uppercase font-mono font-bold text-indigo-400 tracking-wider">
-                Relationship Vertex audited
+              <span className="text-[10px] uppercase font-mono font-bold text-violet-200 tracking-wider">
+                Selected node
               </span>
               <button
                 onClick={() => setSelectedNode(null)}
                 className="text-slate-500 hover:text-white font-mono text-[10px] cursor-pointer"
               >
-                [Dismiss]
+                Dismiss
               </button>
             </div>
-            <h5 className="text-xs font-bold text-white select-all">{selectedNode.label}</h5>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <h5 className="text-sm font-semibold text-white">{selectedNode.label}</h5>
+            <p className="text-sm text-slate-300 leading-6">
               {selectedNode.details || 'Extracted relation node.'}
             </p>
             <div className="text-[10px] font-mono text-slate-500 flex gap-4 uppercase font-semibold">
               <span>
-                Classification: <strong className="text-slate-350">{selectedNode.type}</strong>
+                Type: <strong className="text-slate-300">{selectedNode.type}</strong>
               </span>
               <span>
-                Audit Status:{' '}
-                <strong className="text-indigo-300">{selectedNode.status || 'Audited'}</strong>
+                Status: <strong className="text-violet-200">{selectedNode.status || 'Audited'}</strong>
               </span>
             </div>
           </motion.div>

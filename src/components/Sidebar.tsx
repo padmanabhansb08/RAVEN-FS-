@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { Database, FileText, Briefcase, Sparkles } from 'lucide-react';
+import { Database, FileText, Briefcase, Sparkles, UploadCloud, Trash2 } from 'lucide-react';
 import { DocumentItem, AnalysisResult } from '../types';
 import { DocumentUploader } from './DocumentUploader';
 import { WebFingerprint } from '../utils/fingerprint';
@@ -49,172 +49,163 @@ export function Sidebar({
   const activeDocObj = documentsState.find((d) => d.id === activeDocTab);
 
   return (
-    <section className="lg:col-span-5 flex flex-col gap-4 min-h-0 lg:overflow-y-auto pr-1">
-      {/* Card: File upload & OCR Sandbox text-editor */}
-      <div className="glass-panel border border-white/5 rounded-xl p-5 flex flex-col md:min-h-[460px] max-h-[820px] shrink-0 relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-        <div className="border-b border-white/5 pb-2.5 flex justify-between items-center shrink-0">
+    <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr] min-h-0">
+      <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 flex flex-col gap-4 min-h-0">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-xs font-mono font-bold tracking-widest text-[#94a3b8] uppercase">
-              FRAUD NETWORK EVIDENCE COLLECTION & ANALYSIS WORKSPACE
+            <Database className="w-4 h-4 text-violet-300" />
+            <h3 className="text-xs font-semibold tracking-[0.24em] text-slate-300 uppercase">
+              Document workspace
             </h3>
           </div>
-          <span className="text-[9px] font-mono bg-indigo-500/10 border border-indigo-550/10 px-2 py-0.5 rounded text-indigo-450 uppercase font-bold">
-            SECURE VAULT
+          <span className="text-[10px] font-mono bg-violet-500/10 border border-violet-500/20 px-2 py-1 rounded-full text-violet-200 uppercase font-semibold">
+            Secure vault
           </span>
         </div>
 
-        <div className="mt-3 shrink-0">
-          <DocumentUploader onDocumentIngested={handleDocumentIngested} />
-        </div>
+        <DocumentUploader onDocumentIngested={handleDocumentIngested} />
 
-        {/* Document list tabs */}
-        <div className="flex flex-wrap gap-1 mt-3 bg-black/40 border border-white/5 p-1 rounded-md shrink-0 relative z-10">
-          {documentsState.map((doc) => {
-            const isActive = activeDocTab === doc.id;
-            return (
-              <button
-                key={doc.id}
-                onClick={() => setActiveDocTab(doc.id)}
-                className={`px-3 py-1.5 text-[9.5px] font-mono rounded transition-all leading-none ${
-                  isActive
-                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                }`}
-              >
-                {doc.name.slice(0, 18)}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Document editor container */}
-        {activeDocObj ? (
-          <div className="mt-4 flex-1 flex flex-col gap-3 min-h-0 relative z-10">
-            <div className="grid grid-cols-2 gap-2 bg-black/40 border border-white/5 p-2.5 rounded-lg text-[9.5px] font-mono text-slate-500 shrink-0 shadow-inner">
-              <div>
-                <span className="block text-slate-500 gap-1">Category & Subsystem:</span>
-                <span className="text-slate-300 font-bold">{activeDocObj.type}</span>
-              </div>
-              <div>
-                <span className="block text-slate-500">EXIF Author Trace:</span>
-                <span
-                  className={`font-bold uppercase ${
-                    activeDocObj.metadata?.authorTool?.includes('Canva') ||
-                    activeDocObj.metadata?.authorTool?.includes('Adobe')
-                      ? 'text-amber-400'
-                      : 'text-emerald-400'
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-slate-500 font-semibold">
+            <span>Active files</span>
+            <span>{documentsState.length} loaded</span>
+          </div>
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-black/30 p-2">
+            {documentsState.map((doc) => {
+              const isActive = activeDocTab === doc.id;
+              return (
+                <button
+                  key={doc.id}
+                  onClick={() => setActiveDocTab(doc.id)}
+                  className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
+                    isActive
+                      ? 'bg-violet-500/20 text-violet-100 border border-violet-400/30'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                   }`}
                 >
-                  {activeDocObj.metadata?.authorTool || 'Standard Portal'}
+                  {doc.name.slice(0, 20)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {activeDocObj ? (
+          <div className="flex flex-col gap-3 min-h-0">
+            <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-black/30 p-3 text-sm">
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Category
+                </span>
+                <span className="mt-1 block text-slate-200">{activeDocObj.type}</span>
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Source
+                </span>
+                <span className="mt-1 block text-violet-200">
+                  {activeDocObj.metadata?.authorTool || 'Standard portal'}
                 </span>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col min-h-0 relative">
-              <span className="text-[8px] font-mono uppercase tracking-wider text-slate-500 absolute top-2 right-3 z-10 select-none bg-black/45 border border-white/5 p-1 rounded opacity-60">
-                Editable OCR Draft Layout
-              </span>
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-3 min-h-[280px] flex flex-col">
+              <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                <span>Editable document text</span>
+                <span>OCR draft</span>
+              </div>
               <textarea
                 value={activeDocObj.content}
                 onChange={(e) => handleDocumentContentChange(activeDocObj.id, e.target.value)}
-                className="w-full flex-1 bg-black/40 border border-white/5 text-slate-300 text-xs font-mono p-3 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 rounded-lg resize-none leading-relaxed overflow-y-auto selection:bg-indigo-500/30 shadow-inner transition-all"
+                className="flex-1 w-full resize-none rounded-xl border border-white/10 bg-black/50 p-3 text-sm leading-6 text-slate-200 outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/30"
                 placeholder="Document OCR output text payload..."
               />
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate-600 font-mono mt-8">
-            <FileText className="w-10 h-10 text-slate-700 animate-pulse" />
-            <p className="text-[10px] uppercase mt-2">Network Workspace is Empty</p>
-            <p className="text-[9px] text-slate-500 text-center max-w-xs mt-1">
-              Upload files or click 'Reset Default templates' to prepopulate core evaluation files.
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 text-center">
+            <FileText className="h-10 w-10 text-slate-600" />
+            <p className="mt-3 text-sm font-medium text-slate-300">No documents loaded</p>
+            <p className="mt-1 max-w-xs text-sm text-slate-500">
+              Upload a file to start building the analysis workspace.
             </p>
           </div>
         )}
       </div>
 
-      {/* Card: Managed AI Security Agent Configuration */}
-      <div className="glass-panel border border-white/5 p-5 rounded-xl flex flex-col gap-4 shrink-0 relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-        <div className="relative z-10 flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
-          <h2 className="text-[#94a3b8] text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 leading-none">
-            <Briefcase className="w-4 h-4 text-indigo-400" />
-            Managed Auditor Agent Setup
-          </h2>
-          <div className="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded text-[9.5px] font-mono text-indigo-400 uppercase font-bold leading-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-450 animate-ping"></span>
-            Agent Ready
+      <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 flex flex-col gap-4 min-h-0">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-4 h-4 text-violet-300" />
+            <h2 className="text-xs font-semibold tracking-[0.24em] text-slate-300 uppercase">
+              Analysis controls
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-200">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            Ready
           </div>
         </div>
 
-        <div className="space-y-3 font-mono text-xs">
-          <div className="flex flex-col gap-1">
-            <label className="text-slate-400 font-semibold text-[10px] uppercase">
-              Agent System Identifier
+        <div className="space-y-4 text-sm">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+              Managed agent id
             </label>
             <input
               type="text"
               value={managedAgentId}
               onChange={(e) => setManagedAgentId(e.target.value)}
-              className="bg-black/45 border border-white/5 px-3 py-2 rounded font-sans text-xs text-white uppercase tracking-wider focus:outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-slate-100 outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/30"
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <label className="text-slate-400 font-semibold text-[10px] uppercase">
-                Custom Sweep Directives & Skills
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                Custom directives
               </label>
-              <div className="flex items-center gap-1.5">
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-violet-200">
                 <input
                   type="checkbox"
-                  id="agentToggle"
                   checked={useManagedAgent}
                   onChange={(e) => setUseManagedAgent(e.target.checked)}
-                  className="accent-indigo-550 w-3.5 h-3.5 cursor-pointer"
+                  className="h-4 w-4 accent-violet-500"
                 />
-                <label
-                  htmlFor="agentToggle"
-                  className="text-indigo-400 font-bold text-[9px] uppercase cursor-pointer select-none"
-                >
-                  Agentic Overlay Active
-                </label>
-              </div>
+                Enabled
+              </label>
             </div>
             <textarea
-              rows={3}
+              rows={4}
               value={customDirectives}
               onChange={(e) => setCustomDirectives(e.target.value)}
-              className="bg-black/45 border border-white/5 px-3 py-2 rounded font-sans text-xs text-slate-300 leading-normal resize-none focus:outline-none focus:border-indigo-500"
+              className="w-full resize-none rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-slate-100 outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/30"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 pt-1 border-t border-white/5">
-            <div className="flex justify-between items-center">
-              <label className="text-slate-400 font-semibold text-[10px] uppercase">
-                Sweep Analytics Engine
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                Analysis engine
               </label>
-              <span className="text-[9px] text-[#94a3b8] font-mono leading-none">
-                {engineMode === 'gemini' ? '⚡ AI Cloud' : '⚙️ Local Offline'}
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                {engineMode === 'gemini' ? 'Cloud' : 'Local'}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-1 bg-black/50 p-1 rounded border border-white/5 font-mono text-[10px]">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setEngineMode('gemini');
                   localStorage.setItem('raven_engine_mode', 'gemini');
                 }}
-                className={`py-1.5 rounded transition font-bold uppercase relative ${
+                className={`rounded-xl border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${
                   engineMode === 'gemini'
-                    ? 'bg-indigo-600 text-white shadow-sm font-bold'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'border-violet-400/30 bg-violet-500/15 text-violet-100'
+                    : 'border-white/10 bg-black/30 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Gemini Core
+                Gemini
               </button>
               <button
                 type="button"
@@ -222,30 +213,29 @@ export function Sidebar({
                   setEngineMode('local');
                   localStorage.setItem('raven_engine_mode', 'local');
                 }}
-                className={`py-1.5 rounded transition font-bold uppercase relative ${
+                className={`rounded-xl border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${
                   engineMode === 'local'
-                    ? 'bg-slate-700 text-white shadow-sm font-bold'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'border-violet-400/30 bg-violet-500/15 text-violet-100'
+                    : 'border-white/10 bg-black/30 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Local Pattern Detection Engine
+                Local
               </button>
             </div>
           </div>
         </div>
 
-        {/* Run Relational Sweep operations bar */}
-        <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-3">
+        <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4">
           <button
             onClick={() => {
               setDocumentsState(INITIAL_DEMO_DOCUMENTS);
               setActiveDocTab('doc-itr');
               triggerVerification(INITIAL_DEMO_DOCUMENTS, browserFingerprint?.id);
             }}
-            className="bg-black/45 hover:bg-black/60 border border-white/5 text-[10.5px] font-mono py-2 rounded text-slate-400 hover:text-white transition uppercase font-semibold"
-            title="Clears customized text values and restores initial sandbox defaults"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/5"
           >
-            Reset Default templates
+            <UploadCloud className="h-3.5 w-3.5" />
+            Reset demo
           </button>
           <button
             onClick={() => {
@@ -253,26 +243,25 @@ export function Sidebar({
               setActiveDocTab('');
               setAnalysisResult(null);
             }}
-            className="bg-red-950/15 hover:bg-red-950/30 border border-red-500/15 text-[10.5px] font-mono py-2 rounded text-red-300 hover:text-red-200 transition uppercase font-semibold"
-            title="Deletes all draft and customized files completely"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-200 transition hover:bg-rose-500/15"
           >
-            Clear Workspace files
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear files
           </button>
         </div>
 
         <button
           onClick={() => triggerVerification(documentsState, browserFingerprint?.id)}
           disabled={isAnalyzing || documentsState.length === 0}
-          className={`w-full py-2.5 rounded font-mono text-xs tracking-widest uppercase font-bold text-white transition flex items-center justify-center gap-1.5 shadow-md ${
+          className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition ${
             isAnalyzing || documentsState.length === 0
-              ? 'bg-slate-800 border border-white/5 text-slate-500 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer glow-indigo'
+              ? 'cursor-not-allowed border border-white/10 bg-white/5 text-slate-500'
+              : 'border border-violet-400/30 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-[0_0_28px_rgba(168,85,247,0.25)] hover:brightness-110'
           }`}
         >
-          <Sparkles className={`w-4 h-4 text-indigo-200 ${isAnalyzing ? 'animate-spin' : ''}`} />
-          {isAnalyzing ? 'Executing Multi-Doc verification...' : 'Execute Managed Agentic Sweep'}
+          <Sparkles className={`h-4 w-4 ${isAnalyzing ? 'animate-spin' : ''}`} />
+          {isAnalyzing ? 'Running analysis' : 'Run analysis'}
         </button>
-        </div>
       </div>
     </section>
   );

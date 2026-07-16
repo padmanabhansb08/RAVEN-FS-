@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Award } from 'lucide-react';
+import { ArrowRight, Award, LayoutGrid } from 'lucide-react';
 import {
   computeBrowserFingerprint,
   WebFingerprint,
@@ -15,6 +15,7 @@ import { INITIAL_DEMO_DOCUMENTS } from './constants/documents';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { AnalysisResults } from './components/AnalysisResults';
+import { ProductBlueprint } from './components/ProductBlueprint';
 
 export default function App() {
   const [documentsState, setDocumentsState] = useState<DocumentItem[]>(INITIAL_DEMO_DOCUMENTS);
@@ -224,14 +225,13 @@ export default function App() {
     triggerVerification(updatedDocs, browserFingerprint?.id);
   };
 
-  const activeDocObj = documentsState.find((d) => d.id === activeDocTab);
-
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-transparent text-slate-350 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white">
+    <div className="min-h-screen bg-transparent text-slate-200 flex flex-col font-sans selection:bg-violet-500/30 selection:text-white">
       <Header browserFingerprint={browserFingerprint} />
 
-      {/* Main relational desktop workspace */}
-      <main className="flex-1 p-3 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl w-full mx-auto min-h-0">
+      <main className="flex-1 px-4 md:px-6 py-5 md:py-6 max-w-7xl w-full mx-auto min-h-0 flex flex-col gap-5">
+        <ProductBlueprint />
+
         <Sidebar
           documentsState={documentsState}
           setDocumentsState={setDocumentsState}
@@ -252,29 +252,73 @@ export default function App() {
           browserFingerprint={browserFingerprint}
           setAnalysisResult={setAnalysisResult}
         />
-        <AnalysisResults
-          isAnalyzing={isAnalyzing}
-          activeStageId={activeStageId}
-          stageOutputs={stageOutputs}
-          analysisResult={analysisResult}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-          useManagedAgent={useManagedAgent}
-          managedAgentId={managedAgentId}
-          errorText={errorText}
-        />
+
+        <section className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-5 min-h-0">
+          <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 flex flex-col gap-4 min-h-0">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200">
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  Workspace
+                </div>
+                <h2 className="mt-3 text-xl font-semibold text-white">Document control and analysis setup</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400 max-w-2xl">
+                  Upload evidence, edit extracted text, choose the analysis engine, and run a managed sweep from one clear surface.
+                </p>
+              </div>
+              <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">
+                <ArrowRight className="h-3.5 w-3.5 text-violet-300" />
+                Endpoint-ready
+              </div>
+            </div>
+
+            <Sidebar
+              documentsState={documentsState}
+              setDocumentsState={setDocumentsState}
+              activeDocTab={activeDocTab}
+              setActiveDocTab={setActiveDocTab}
+              handleDocumentContentChange={handleDocumentContentChange}
+              handleDocumentIngested={handleDocumentIngested}
+              managedAgentId={managedAgentId}
+              setManagedAgentId={setManagedAgentId}
+              useManagedAgent={useManagedAgent}
+              setUseManagedAgent={setUseManagedAgent}
+              customDirectives={customDirectives}
+              setCustomDirectives={setCustomDirectives}
+              engineMode={engineMode}
+              setEngineMode={setEngineMode}
+              isAnalyzing={isAnalyzing}
+              triggerVerification={triggerVerification}
+              browserFingerprint={browserFingerprint}
+              setAnalysisResult={setAnalysisResult}
+            />
+          </div>
+
+          <div className="min-h-0">
+            <AnalysisResults
+              isAnalyzing={isAnalyzing}
+              activeStageId={activeStageId}
+              stageOutputs={stageOutputs}
+              analysisResult={analysisResult}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+              useManagedAgent={useManagedAgent}
+              managedAgentId={managedAgentId}
+              errorText={errorText}
+            />
+          </div>
+        </section>
       </main>
 
-      {/* Persistent footer */}
-      <footer className="glass-panel border-t border-white/5 px-6 py-4 mt-auto z-10 relative">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[9px] text-slate-400 select-none">
+      <footer className="glass-panel border-t border-white/5 px-4 md:px-6 py-4 mt-auto z-10 relative">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-[10px] text-slate-400 select-none">
           <div className="flex items-center gap-1.5">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-            <span>RAVEN-FS Intelligence Suite v2.2 (Google AI Studio)</span>
+            <span>RAVEN-FS document analysis workspace</span>
           </div>
-          <div className="text-indigo-400/70 uppercase tracking-widest font-bold flex items-center gap-1">
-            <Award className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Optimal Agentic Coherence Traversal Mode</span>
+          <div className="text-violet-300/80 uppercase tracking-widest font-bold flex items-center gap-1">
+            <Award className="w-3.5 h-3.5 text-violet-300" />
+            <span>Black + purple interface system</span>
           </div>
         </div>
       </footer>

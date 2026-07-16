@@ -1,4 +1,4 @@
-import { Scale, Download, Check } from 'lucide-react';
+import { Check, Download, Scale } from 'lucide-react';
 import { AnalysisResult } from '../../types';
 
 interface ComplianceDirectivesProps {
@@ -7,67 +7,73 @@ interface ComplianceDirectivesProps {
 
 export function ComplianceDirectives({ analysisResult }: ComplianceDirectivesProps) {
   return (
-    <div className="glass-panel border border-white/5 p-5 rounded-xl space-y-4 shadow-lg">
-      <div className="border-b border-white/5 pb-2 flex justify-between items-center">
-        <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-          <Scale className="w-4 h-4 text-indigo-400" />
-          Section 4: Executive Compliance Directives & Action logs
+    <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 space-y-4">
+      <div className="border-b border-white/10 pb-3 flex justify-between items-center">
+        <h4 className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-200 flex items-center gap-1.5">
+          <Scale className="w-4 h-4 text-violet-300" />
+          Compliance directives
         </h4>
         <span className="text-[9.5px] font-mono text-slate-500 font-bold leading-none select-none">
-          Cybercrime Compliance Check
+          Export and copy actions
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="glass-panel border border-white/5 rounded-lg p-3.5 space-y-1 select-all shadow-inner relative z-10">
-          <span className="text-slate-500 block text-[8px] tracking-wider uppercase font-bold font-mono">
-            Recommended Compliance Action
+        <div className="rounded-2xl border border-white/10 bg-black/30 p-4 space-y-1">
+          <span className="text-slate-500 block text-[10px] tracking-[0.2em] uppercase font-bold">
+            Recommended action
           </span>
-          <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
-            {analysisResult.caseFileDetails.enforcementActionRequired}
+          <p className="text-sm text-slate-200 leading-6">
+            {analysisResult.caseFileDetails.enforcementActionRequired ||
+              'Review findings with the appropriate operations team.'}
           </p>
         </div>
 
-        <div className="glass-panel border border-white/5 rounded-lg p-3.5 space-y-1 select-all shadow-inner relative z-10">
-          <span className="text-slate-500 block text-[8px] tracking-wider uppercase font-bold font-mono">
-            Applicable Enforcement Guideline
+        <div className="rounded-2xl border border-white/10 bg-black/30 p-4 space-y-1">
+          <span className="text-slate-500 block text-[10px] tracking-[0.2em] uppercase font-bold">
+            Compliance note
           </span>
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
-            {analysisResult.caseFileDetails.ncrbComplianceNote}
+          <p className="text-sm text-slate-300 leading-6">
+            {analysisResult.caseFileDetails.ncrbComplianceNote ||
+              'No additional compliance note provided.'}
           </p>
         </div>
       </div>
 
-      {/* Operation Actions row buttons */}
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         <button
           onClick={() => {
-            const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
-              JSON.stringify(analysisResult, null, 2),
-            )}`;
+            const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(analysisResult, null, 2))}`;
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute('href', jsonString);
-            downloadAnchor.setAttribute('download', `RAVEN_RelationAudit_Registry.json`);
+            downloadAnchor.setAttribute('download', 'RAVEN_RelationAudit_Registry.json');
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
           }}
-          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto bg-indigo-650 hover:bg-indigo-755 cursor-pointer text-white text-[10.5px] font-mono tracking-widest uppercase font-bold px-4 py-2.5 rounded transition shadow shadow-indigo-950/20"
+          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto rounded-2xl border border-violet-400/30 bg-violet-500/15 px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-widest text-violet-100 transition hover:bg-violet-500/20"
         >
-          <Download className="w-3.5 h-3.5 text-indigo-200" />
-          Download Intelligence Package (JSON)
+          <Download className="w-3.5 h-3.5" />
+          Download JSON
         </button>
 
         <button
-          onClick={() => {
-            const reportText = `[RAVEN FRAUD RING INTELLIGENCE REPORT]\nVerdict: ${analysisResult.verdict}\nDeficit risk rating: ${analysisResult.score}/100\nCore Summary: ${analysisResult.summary}\nNCRB Filing Suggested: ${analysisResult.caseFileDetails.ncrbComplianceNote}\nEnforcement Recommendation: ${analysisResult.caseFileDetails.enforcementActionRequired}`;
-            navigator.clipboard.writeText(reportText);
-            alert('Official Case File data copied successfully to clipboard!');
+          onClick={async () => {
+            const reportText = [
+              '[RAVEN ANALYSIS REPORT]',
+              `Verdict: ${analysisResult.verdict}`,
+              `Score: ${analysisResult.score}/100`,
+              `Summary: ${analysisResult.summary}`,
+              `Compliance: ${analysisResult.caseFileDetails.ncrbComplianceNote || 'N/A'}`,
+              `Action: ${analysisResult.caseFileDetails.enforcementActionRequired || 'N/A'}`,
+            ].join('\n');
+
+            await navigator.clipboard.writeText(reportText);
           }}
-          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto bg-black/40 border border-white/5 hover:bg-black/60 hover:border-white/10 cursor-pointer text-slate-300 text-[10.5px] font-mono tracking-widest uppercase font-bold px-4 py-2.5 rounded transition shadow-inner"
+          className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto rounded-2xl border border-white/10 bg-black/30 px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-widest text-slate-200 transition hover:bg-white/5"
         >
-          <Check className="w-4 h-4 text-emerald-400 animate-[pulse_1.5s_infinite]" />
-          Copy Enforcement Report
+          <Check className="w-4 h-4 text-emerald-300" />
+          Copy report
         </button>
       </div>
     </div>

@@ -26,6 +26,18 @@ export interface GraphEdge {
   status: 'flagged' | 'neutral' | 'verified';
 }
 
+export type DocumentType =
+  | 'CALL_RECORD'
+  | 'TRANSACTION_LOG'
+  | 'ACCOUNT_LINKAGE'
+  | 'DEVICE_LOG'
+  | 'VICTIM_REPORT'
+  | 'ITR'
+  | 'SALARY_SLIP'
+  | 'PROPERTY_VALUATION'
+  | 'ID_PROOF'
+  | 'OTHER';
+
 export interface TamperedSignature {
   signature: string;
   confidence: number; // 0 to 100
@@ -42,8 +54,10 @@ export interface AnalysisResult {
   graphEdges: GraphEdge[];
   tamperedSignatures: TamperedSignature[];
   caseFileDetails: {
-    enforcementActionRequired: string;
-    ncrbComplianceNote: string;
+    enforcementActionRequired?: string;
+    ncrbComplianceNote?: string;
+    bankActionRequired?: string;
+    rbiComplianceWarning?: string;
     recommendingRejection: boolean;
   };
   deviceFingerprintLog?: string;
@@ -65,8 +79,9 @@ export interface AnalysisResult {
 export interface DocumentItem {
   id: string;
   name: string;
-  type: 'CALL_RECORD' | 'TRANSACTION_LOG' | 'ACCOUNT_LINKAGE' | 'DEVICE_LOG' | 'VICTIM_REPORT' | 'OTHER';
+  type: DocumentType;
   content: string;
+  status?: string;
   metadata?: {
     fileSize?: string;
     createdDate?: string;

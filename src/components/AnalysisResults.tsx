@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { Database, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Database, LayoutDashboard } from 'lucide-react';
 import { AnalysisResult, GraphNode } from '../types';
 import { AgenticSweepProgress } from './AnalysisResultsComponents/AgenticSweepProgress';
 import { VerdictHeader } from './AnalysisResultsComponents/VerdictHeader';
@@ -78,10 +78,23 @@ export function AnalysisResults({
   }
 
   return (
-    <section className="lg:col-span-7 flex flex-col gap-6 lg:h-full lg:overflow-y-auto pr-1">
+    <section className="flex flex-col gap-4 min-h-0">
+      <div className="glass-panel rounded-3xl border border-white/10 p-4 md:p-5 flex items-center justify-between gap-4">
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.24em] text-violet-200 font-semibold">
+            Results view
+          </div>
+          <h2 className="mt-1 text-lg font-semibold text-white">Analysis output and final reporting</h2>
+        </div>
+        <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">
+          <LayoutDashboard className="h-3.5 w-3.5 text-violet-300" />
+          <span>Structured review panel</span>
+        </div>
+      </div>
+
       {content}
       {errorText && (
-        <div className="bg-red-500/5 border border-red-500/20 p-3 rounded-lg flex items-center gap-2 text-xs font-mono text-red-400 select-text">
+        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/8 p-3 flex items-center gap-2 text-xs font-mono text-rose-200 select-text">
           <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{errorText}</span>
         </div>
