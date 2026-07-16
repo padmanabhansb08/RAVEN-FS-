@@ -71,7 +71,8 @@ export function AnalysisResults({
           Workspace Awaiting Active Scan
         </h3>
         <p className="text-xs text-slate-500 font-sans mt-2 max-w-sm">
-          Upload call records, transaction logs, and account linkages. RAVEN will detect coordinated fraud patterns and map the ring topology.
+          Upload call records, transaction logs, and account linkages. RAVEN will detect coordinated
+          fraud patterns and map the ring topology.
         </p>
       </div>
     );
@@ -84,7 +85,9 @@ export function AnalysisResults({
           <div className="text-[10px] uppercase tracking-[0.24em] text-violet-200 font-semibold">
             Results view
           </div>
-          <h2 className="mt-1 text-lg font-semibold text-white">Analysis output and final reporting</h2>
+          <h2 className="mt-1 text-lg font-semibold text-white">
+            Analysis output and final reporting
+          </h2>
         </div>
         <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">
           <LayoutDashboard className="h-3.5 w-3.5 text-violet-300" />

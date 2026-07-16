@@ -59,25 +59,32 @@ export default function Dashboard() {
                 A polished view of build health, security, tests, and delivery flow.
               </h1>
               <p className="mt-3 text-sm md:text-base leading-7 text-slate-300">
-                This dashboard now follows the same visual system as the analysis workspace, with strong hierarchy,
-                readable cards, and a black + purple direction that feels intentional.
+                This dashboard now follows the same visual system as the analysis workspace, with
+                strong hierarchy, readable cards, and a black + purple direction that feels
+                intentional.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <BarChart3 className="h-5 w-5 text-violet-300" />
                 <div className="mt-3 text-sm font-medium text-white">Build health first</div>
-                <div className="mt-1 text-sm text-slate-400">Visibility into delivery, coverage, and trendlines.</div>
+                <div className="mt-1 text-sm text-slate-400">
+                  Visibility into delivery, coverage, and trendlines.
+                </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <ShieldCheck className="h-5 w-5 text-violet-300" />
                 <div className="mt-3 text-sm font-medium text-white">Security posture</div>
-                <div className="mt-1 text-sm text-slate-400">Risk is surfaced before it becomes a release blocker.</div>
+                <div className="mt-1 text-sm text-slate-400">
+                  Risk is surfaced before it becomes a release blocker.
+                </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <Sparkles className="h-5 w-5 text-violet-300" />
                 <div className="mt-3 text-sm font-medium text-white">Cleaner story</div>
-                <div className="mt-1 text-sm text-slate-400">Everything is framed for fast scanning and trust.</div>
+                <div className="mt-1 text-sm text-slate-400">
+                  Everything is framed for fast scanning and trust.
+                </div>
               </div>
             </div>
           </div>

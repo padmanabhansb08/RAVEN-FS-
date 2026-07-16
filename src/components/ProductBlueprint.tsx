@@ -84,7 +84,8 @@ export function ProductBlueprint() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="text-slate-200 font-medium">3. Polished execution</div>
             <div className="mt-1 text-slate-400">
-              Use restrained motion, depth, and spacing so the interface feels premium rather than noisy.
+              Use restrained motion, depth, and spacing so the interface feels premium rather than
+              noisy.
             </div>
           </div>
         </div>

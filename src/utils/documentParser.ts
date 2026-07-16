@@ -132,7 +132,7 @@ export const parseDocument = (
         status: 'verified',
       });
     }
-    
+
     if (amtMatch) {
       tempEntities.push({
         field: 'Transfer Amount',
@@ -217,7 +217,10 @@ export const parseDocument = (
         classification: 'GEOGRAPHIC',
         confidence: 99.1,
         extractedFrom: geoIp.raw,
-        status: geoIp.val.toLowerCase().includes('proxy') || geoIp.val.toLowerCase().includes('vpn') ? 'warning' : 'verified',
+        status:
+          geoIp.val.toLowerCase().includes('proxy') || geoIp.val.toLowerCase().includes('vpn')
+            ? 'warning'
+            : 'verified',
       });
     }
 
@@ -231,7 +234,7 @@ export const parseDocument = (
         status: text.toLowerCase().includes('collision') ? 'discrepant' : 'verified',
       });
     }
-    
+
     if (eventMatch) {
       tempEntities.push({
         field: 'Recorded Client Action',

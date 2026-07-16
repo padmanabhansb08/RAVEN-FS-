@@ -14,7 +14,15 @@ export interface ExtractedEntity {
 export interface GraphNode {
   id: string;
   label: string;
-  type: 'person' | 'property' | 'address' | 'device' | 'employer' | 'phone' | 'account' | 'transaction';
+  type:
+    | 'person'
+    | 'property'
+    | 'address'
+    | 'device'
+    | 'employer'
+    | 'phone'
+    | 'account'
+    | 'transaction';
   status: 'flagged' | 'neutral' | 'verified';
   details?: string;
 }

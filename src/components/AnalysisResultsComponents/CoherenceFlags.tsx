@@ -36,10 +36,15 @@ export function CoherenceFlags({ analysisResult }: CoherenceFlagsProps) {
                   : 'bg-white/5 text-slate-300 border-white/10';
 
             return (
-              <div key={idx} className={`p-4 rounded-2xl border flex flex-col sm:flex-row gap-3 items-start justify-between ${tone}`}>
+              <div
+                key={idx}
+                className={`p-4 rounded-2xl border flex flex-col sm:flex-row gap-3 items-start justify-between ${tone}`}
+              >
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={`text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded-full leading-none font-bold border ${badgeTone}`}>
+                    <span
+                      className={`text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded-full leading-none font-bold border ${badgeTone}`}
+                    >
                       {con.severity}
                     </span>
                     <span className="text-sm font-medium text-white">{con.title}</span>
@@ -60,7 +65,8 @@ export function CoherenceFlags({ analysisResult }: CoherenceFlagsProps) {
             No contradictions found
           </h4>
           <p className="text-sm text-slate-400 max-w-sm leading-6">
-            The uploaded material is internally consistent across names, dates, and supporting values.
+            The uploaded material is internally consistent across names, dates, and supporting
+            values.
           </p>
         </div>
       )}

@@ -261,9 +261,12 @@ export default function App() {
                   <LayoutGrid className="h-3.5 w-3.5" />
                   Workspace
                 </div>
-                <h2 className="mt-3 text-xl font-semibold text-white">Document control and analysis setup</h2>
+                <h2 className="mt-3 text-xl font-semibold text-white">
+                  Document control and analysis setup
+                </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-400 max-w-2xl">
-                  Upload evidence, edit extracted text, choose the analysis engine, and run a managed sweep from one clear surface.
+                  Upload evidence, edit extracted text, choose the analysis engine, and run a
+                  managed sweep from one clear surface.
                 </p>
               </div>
               <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">

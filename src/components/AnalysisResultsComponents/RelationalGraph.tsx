@@ -73,7 +73,8 @@ export function RelationalGraph({
                 Type: <strong className="text-slate-300">{selectedNode.type}</strong>
               </span>
               <span>
-                Status: <strong className="text-violet-200">{selectedNode.status || 'Audited'}</strong>
+                Status:{' '}
+                <strong className="text-violet-200">{selectedNode.status || 'Audited'}</strong>
               </span>
             </div>
           </motion.div>

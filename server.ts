@@ -12,6 +12,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.disable('x-powered-by');
 
 // Apply routes
 app.use(router);

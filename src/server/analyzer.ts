@@ -212,7 +212,8 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
     contradictions.push({
       title: 'Telecom Spoofing Detected',
       severity: 'high',
-      description: 'Call records indicate caller ID spoofing from known high-risk ranges matching victim reports.',
+      description:
+        'Call records indicate caller ID spoofing from known high-risk ranges matching victim reports.',
       crossDocSource: 'Telecom Metadata',
     });
   }
@@ -272,22 +273,56 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
   let accIdx = 1;
   accounts.forEach((a) => {
     const id = `node-acc-${accIdx++}`;
-    graphNodes.push({ id, label: `Account: ${a}`, type: 'account', status: 'flagged', details: 'Extracted financial account' });
-    personNodeIds.forEach((pid) => graphEdges.push({ source: pid, target: id, relationship: 'Registered Owner', status: 'neutral' }));
+    graphNodes.push({
+      id,
+      label: `Account: ${a}`,
+      type: 'account',
+      status: 'flagged',
+      details: 'Extracted financial account',
+    });
+    personNodeIds.forEach((pid) =>
+      graphEdges.push({
+        source: pid,
+        target: id,
+        relationship: 'Registered Owner',
+        status: 'neutral',
+      }),
+    );
   });
 
   let txnIdx = 1;
   transactions.forEach((t) => {
     const id = `node-txn-${txnIdx++}`;
-    graphNodes.push({ id, label: `TXN: ${t}`, type: 'transaction', status: 'flagged', details: 'Extracted transaction' });
-    personNodeIds.forEach((pid) => graphEdges.push({ source: pid, target: id, relationship: 'Executed TXN', status: 'flagged' }));
+    graphNodes.push({
+      id,
+      label: `TXN: ${t}`,
+      type: 'transaction',
+      status: 'flagged',
+      details: 'Extracted transaction',
+    });
+    personNodeIds.forEach((pid) =>
+      graphEdges.push({ source: pid, target: id, relationship: 'Executed TXN', status: 'flagged' }),
+    );
   });
-  
+
   let phoneIdx = 1;
   phones.forEach((p) => {
     const id = `node-phone-${phoneIdx++}`;
-    graphNodes.push({ id, label: p, type: 'phone', status: 'flagged', details: 'Call record endpoint' });
-    personNodeIds.forEach((pid) => graphEdges.push({ source: pid, target: id, relationship: 'Caller/Receiver', status: 'flagged' }));
+    graphNodes.push({
+      id,
+      label: p,
+      type: 'phone',
+      status: 'flagged',
+      details: 'Call record endpoint',
+    });
+    personNodeIds.forEach((pid) =>
+      graphEdges.push({
+        source: pid,
+        target: id,
+        relationship: 'Caller/Receiver',
+        status: 'flagged',
+      }),
+    );
   });
 
   let devIdx = 1;

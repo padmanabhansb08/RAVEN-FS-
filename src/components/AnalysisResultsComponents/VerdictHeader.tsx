@@ -63,8 +63,8 @@ export function VerdictHeader({
                 Managed agent active
               </span>
               <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                Workflow <span className="text-slate-200">{managedAgentId}</span> contributed to
-                the final score and relationships.
+                Workflow <span className="text-slate-200">{managedAgentId}</span> contributed to the
+                final score and relationships.
               </p>
             </div>
           </div>
@@ -85,7 +85,14 @@ export function VerdictHeader({
       <div className="grid gap-5 xl:grid-cols-[auto_1fr_auto] items-center">
         <div className="relative w-24 h-24 flex items-center justify-center shrink-0 select-none">
           <svg className="w-full h-full transform -rotate-90">
-            <circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,0.06)" strokeWidth="5" fill="transparent" />
+            <circle
+              cx="48"
+              cy="48"
+              r="40"
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="5"
+              fill="transparent"
+            />
             <circle
               cx="48"
               cy="48"
@@ -102,7 +109,9 @@ export function VerdictHeader({
             <span className="text-3xl font-semibold text-white leading-none tracking-tight">
               {analysisResult.score}
             </span>
-            <p className={`text-[8px] uppercase font-bold tracking-wider leading-none mt-1 ${textScoreColorClass}`}>
+            <p
+              className={`text-[8px] uppercase font-bold tracking-wider leading-none mt-1 ${textScoreColorClass}`}
+            >
               {textScoreLabel}
             </p>
           </div>
@@ -110,7 +119,9 @@ export function VerdictHeader({
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-[9.5px] font-mono tracking-widest font-bold uppercase border px-2.5 py-1 rounded-full ${verdictClass}`}>
+            <span
+              className={`text-[9.5px] font-mono tracking-widest font-bold uppercase border px-2.5 py-1 rounded-full ${verdictClass}`}
+            >
               {analysisResult.verdict}
             </span>
             {useManagedAgent && (
@@ -138,7 +149,13 @@ export function VerdictHeader({
           </div>
           <div className="flex justify-between items-center gap-4">
             <span className="text-slate-500 uppercase">Anomalies</span>
-            <span className={analysisResult.contradictions.length > 0 ? 'text-amber-300 font-bold' : 'text-slate-400'}>
+            <span
+              className={
+                analysisResult.contradictions.length > 0
+                  ? 'text-amber-300 font-bold'
+                  : 'text-slate-400'
+              }
+            >
               {analysisResult.contradictions.length}
             </span>
           </div>

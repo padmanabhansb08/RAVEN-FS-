@@ -74,7 +74,8 @@ export const ParsedEntitiesList: React.FC<ParsedEntitiesListProps> = ({
                 </div>
 
                 <p className="text-[9.5px] font-mono text-slate-550 truncate max-w-full">
-                  Source: <span className="italic text-slate-400">"{entity.extractedFrom}"</span>
+                  Source:{' '}
+                  <span className="italic text-slate-400">&quot;{entity.extractedFrom}&quot;</span>
                 </p>
               </div>
 

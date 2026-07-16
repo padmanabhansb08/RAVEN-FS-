@@ -6,24 +6,24 @@ import { WebFingerprint } from '../utils/fingerprint';
 import { INITIAL_DEMO_DOCUMENTS } from '../constants/documents';
 
 interface SidebarProps {
-  documentsState: DocumentItem[];
-  setDocumentsState: Dispatch<SetStateAction<DocumentItem[]>>;
-  activeDocTab: string;
-  setActiveDocTab: Dispatch<SetStateAction<string>>;
-  handleDocumentContentChange: (docId: string, newContent: string) => void;
-  handleDocumentIngested: (newDoc: DocumentItem) => void;
-  managedAgentId: string;
-  setManagedAgentId: Dispatch<SetStateAction<string>>;
-  useManagedAgent: boolean;
-  setUseManagedAgent: Dispatch<SetStateAction<boolean>>;
-  customDirectives: string;
-  setCustomDirectives: Dispatch<SetStateAction<string>>;
-  engineMode: 'gemini' | 'local';
-  setEngineMode: Dispatch<SetStateAction<'gemini' | 'local'>>;
-  isAnalyzing: boolean;
-  triggerVerification: (currentDocs: DocumentItem[], customFpId?: string) => void;
-  browserFingerprint: WebFingerprint | null;
-  setAnalysisResult: Dispatch<SetStateAction<AnalysisResult | null>>;
+  readonly documentsState: DocumentItem[];
+  readonly setDocumentsState: Dispatch<SetStateAction<DocumentItem[]>>;
+  readonly activeDocTab: string;
+  readonly setActiveDocTab: Dispatch<SetStateAction<string>>;
+  readonly handleDocumentContentChange: (docId: string, newContent: string) => void;
+  readonly handleDocumentIngested: (newDoc: DocumentItem) => void;
+  readonly managedAgentId: string;
+  readonly setManagedAgentId: Dispatch<SetStateAction<string>>;
+  readonly useManagedAgent: boolean;
+  readonly setUseManagedAgent: Dispatch<SetStateAction<boolean>>;
+  readonly customDirectives: string;
+  readonly setCustomDirectives: Dispatch<SetStateAction<string>>;
+  readonly engineMode: 'gemini' | 'local';
+  readonly setEngineMode: Dispatch<SetStateAction<'gemini' | 'local'>>;
+  readonly isAnalyzing: boolean;
+  readonly triggerVerification: (currentDocs: DocumentItem[], customFpId?: string) => void;
+  readonly browserFingerprint: WebFingerprint | null;
+  readonly setAnalysisResult: Dispatch<SetStateAction<AnalysisResult | null>>;
 }
 
 export function Sidebar({

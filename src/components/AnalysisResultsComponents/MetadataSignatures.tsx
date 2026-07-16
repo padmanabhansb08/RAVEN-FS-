@@ -21,7 +21,10 @@ export function MetadataSignatures({ analysisResult }: MetadataSignaturesProps) 
       {analysisResult.tamperedSignatures.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {analysisResult.tamperedSignatures.map((sig, i) => (
-            <div key={i} className="rounded-2xl p-4 flex flex-col gap-2 border border-amber-500/20 bg-amber-500/8">
+            <div
+              key={i}
+              className="rounded-2xl p-4 flex flex-col gap-2 border border-amber-500/20 bg-amber-500/8"
+            >
               <span className="text-[8.5px] font-mono tracking-widest uppercase font-bold px-1.5 py-0.5 rounded-full leading-none shrink-0 self-start bg-amber-500/10 text-amber-200 border border-amber-500/20">
                 Confidence {sig.confidence}%
               </span>

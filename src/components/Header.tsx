@@ -2,7 +2,7 @@ import { Layers, Fingerprint } from 'lucide-react';
 import { WebFingerprint } from '../utils/fingerprint';
 
 interface HeaderProps {
-  browserFingerprint: WebFingerprint | null;
+  readonly browserFingerprint: WebFingerprint | null;
 }
 
 export function Header({ browserFingerprint }: HeaderProps) {

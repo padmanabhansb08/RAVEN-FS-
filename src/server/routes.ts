@@ -80,8 +80,13 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
       }
 
       // Automatically guess the document type from name
-      let guessedType: 'CALL_RECORD' | 'TRANSACTION_LOG' | 'ACCOUNT_LINKAGE' | 'DEVICE_LOG' | 'VICTIM_REPORT' | 'OTHER' =
-        'OTHER';
+      let guessedType:
+        | 'CALL_RECORD'
+        | 'TRANSACTION_LOG'
+        | 'ACCOUNT_LINKAGE'
+        | 'DEVICE_LOG'
+        | 'VICTIM_REPORT'
+        | 'OTHER' = 'OTHER';
       const lowerName = file.originalname.toLowerCase();
       if (lowerName.includes('call') || lowerName.includes('cdr')) {
         guessedType = 'CALL_RECORD';
@@ -286,7 +291,8 @@ Analyze the documents below. You MUST respond in valid JSON format. Follow the s
                   label: { type: Type.STRING, description: 'Short human label' },
                   type: {
                     type: Type.STRING,
-                    description: 'person, property, address, device, employer, phone, account, or transaction',
+                    description:
+                      'person, property, address, device, employer, phone, account, or transaction',
                   },
                   status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
                   details: { type: Type.STRING },
@@ -330,15 +336,21 @@ Analyze the documents below. You MUST respond in valid JSON format. Follow the s
               properties: {
                 enforcementActionRequired: {
                   type: Type.STRING,
-                  description: 'Actionable law-enforcement filing guidance, e.g., recommend NCRB/cybercrime-portal filing.',
+                  description:
+                    'Actionable law-enforcement filing guidance, e.g., recommend NCRB/cybercrime-portal filing.',
                 },
                 ncrbComplianceNote: {
                   type: Type.STRING,
-                  description: 'Guidance on court-admissible packaging and cross-jurisdiction linkages.',
+                  description:
+                    'Guidance on court-admissible packaging and cross-jurisdiction linkages.',
                 },
                 recommendingRejection: { type: Type.BOOLEAN },
               },
-              required: ['enforcementActionRequired', 'ncrbComplianceNote', 'recommendingRejection'],
+              required: [
+                'enforcementActionRequired',
+                'ncrbComplianceNote',
+                'recommendingRejection',
+              ],
             },
           },
           required: [

@@ -38,7 +38,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
 
     // Validate format
     const allowedExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.docx'];
-    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    const extMatch = /\.[^/.]+$/.exec(file.name);
+    const fileExt = extMatch ? extMatch[0].toLowerCase() : '';
 
     if (
       !allowedExtensions.includes(fileExt) &&
@@ -287,25 +288,30 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
             className="absolute left-0 right-0 h-1 bg-indigo-400/60 shadow-[0_0_20px_rgba(99,102,241,1)] z-0 pointer-events-none"
           />
         )}
-        
-        <motion.div 
-          animate={{ scale: dragActive ? 1.15 : 1 }} 
+
+        <motion.div
+          animate={{ scale: dragActive ? 1.15 : 1 }}
           className={`relative z-10 p-3 rounded-full border transition-colors ${
-            dragActive ? 'bg-indigo-600/20 border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'bg-white/5 border-white/5 group-hover:bg-indigo-900/30 group-hover:border-indigo-500/30'
+            dragActive
+              ? 'bg-indigo-600/20 border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.3)]'
+              : 'bg-white/5 border-white/5 group-hover:bg-indigo-900/30 group-hover:border-indigo-500/30'
           }`}
         >
           <UploadCloud
             className={`w-8 h-8 transition-colors ${dragActive ? 'text-indigo-400 animate-pulse' : 'text-slate-400 group-hover:text-indigo-300'}`}
           />
         </motion.div>
-        
+
         <div className="space-y-1.5 relative z-10">
           <p className="text-[13px] font-semibold text-slate-200">
             Drag and Drop Document, or{' '}
-            <span className="text-indigo-400 font-mono underline decoration-indigo-500/30 underline-offset-4 decoration-2">Browse Files</span>
+            <span className="text-indigo-400 font-mono underline decoration-indigo-500/30 underline-offset-4 decoration-2">
+              Browse Files
+            </span>
           </p>
           <p className="text-[10px] text-slate-500 font-mono leading-relaxed mt-2 max-w-sm mx-auto">
-            Supporting call records, transaction logs, account linkages, device fingerprints, victim reports
+            Supporting call records, transaction logs, account linkages, device fingerprints, victim
+            reports
           </p>
         </div>
       </div>
@@ -320,7 +326,7 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
       {/* Uploading Progress Details State inspired by FineUploader layout */}
       <AnimatePresence>
         {currentUpload && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -377,7 +383,7 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
                   style={{ width: `${currentUpload.progress}%` }}
                 >
                   {currentUpload.status !== 'completed' && (
-                    <motion.div 
+                    <motion.div
                       className="absolute inset-0 bg-white/20"
                       initial={{ x: '-100%' }}
                       animate={{ x: '100%' }}
