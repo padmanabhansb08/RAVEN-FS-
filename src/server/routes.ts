@@ -1,10 +1,12 @@
 import express from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { createRequire } from 'module';
 import { analyzeDocumentsDynamically } from './analyzer.js';
 import { AnalysisResult, DocumentItem } from '../types.js';
+import { inferDocumentTypeFromFilename } from '../domain/documentType.js';
+import { getGeminiAnalysisConfig } from '../domain/geminiAnalysisConfig.js';
 
 const requireModule = createRequire(import.meta.url);
 const pdfParse = requireModule('pdf-parse');
@@ -79,34 +81,8 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
         content = file.buffer.toString('utf-8');
       }
 
-      // Automatically guess the document type from name
-      let guessedType: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER' =
-        'OTHER';
-      const lowerName = file.originalname.toLowerCase();
-      if (lowerName.includes('itr') || lowerName.includes('tax') || lowerName.includes('return')) {
-        guessedType = 'ITR';
-      } else if (
-        lowerName.includes('salary') ||
-        lowerName.includes('slip') ||
-        lowerName.includes('pay') ||
-        lowerName.includes('earnings')
-      ) {
-        guessedType = 'SALARY_SLIP';
-      } else if (
-        lowerName.includes('property') ||
-        lowerName.includes('deed') ||
-        lowerName.includes('valuation') ||
-        lowerName.includes('asset')
-      ) {
-        guessedType = 'PROPERTY_VALUATION';
-      } else if (
-        lowerName.includes('id') ||
-        lowerName.includes('pan') ||
-        lowerName.includes('aadhaar') ||
-        lowerName.includes('passport')
-      ) {
-        guessedType = 'ID_PROOF';
-      }
+      // Preserve legacy classification while recognizing PS6 intelligence records.
+      const guessedType = inferDocumentTypeFromFilename(file.originalname);
 
       const cleanFileName = file.originalname.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
 
@@ -147,7 +123,10 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
   // Inject client fingerprint logs if any matching context is available
   if (clientFingerprintId && documents.length > 0) {
     documents = documents.map((doc) => {
-      if (doc.type === 'ID_PROOF' && doc.content.includes('fp-88a29b4e')) {
+      if (
+        (doc.type === 'ID_PROOF' || doc.type === 'DEVICE_LOG') &&
+        doc.content.includes('fp-88a29b4e')
+      ) {
         return {
           ...doc,
           content: doc.content.replace('fp-88a29b4e', clientFingerprintId),
@@ -212,150 +191,18 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
       });
     }
 
-    const systemPrompt = `You are Raven, a super sharp pet detective and pet document cross-checker.
-Your job is to spawn out a lot of AI agents to cross check all the documentation that the user provides, regardless of under what category or classification those documentation falls into.
-Look out for all red flags. Your primary task is TO VERIFY THE STORY and find contradictions.
-Check for clashes/contradictions across the documents (e.g., matching or discrepant income figures between ITR and salary certificates, mismatched registration dates, visual/graphic template modifications, identical device signatures across separate applicants).
-
-You operate across 4 layers of intelligence:
-1. Ingestion: Analyze fields from provided files.
-2. Cross-Document Coherence: Flags mismatches (income, identity, dates, addresses, employers) that span multiple documents.
-3. Graph & Fraud Ring Detection: Create logic nodes (person, property, address, device, employer, phone) and edges representing links. Flag dangerous edges or clusters (e.g. sharing device fingerprint across separate ID filings, pixel-level salary templates).
-4. Case File compilation: Produce a structured weighted risk score (0-100) and actionable decision.
-
-Analyze the documents below. You MUST respond in valid JSON format. Follow the strict schema exactly.`;
+    // Domain-routed Gemini config: legacy loan prompt/schema remain intact for non-PS6 docs.
+    const analysisConfig = getGeminiAnalysisConfig(documents || []);
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: [
-        { text: systemPrompt },
+        { text: analysisConfig.systemPrompt },
         { text: `Evaluate these submitted documents collectively:\n${promptDocs}` },
       ],
       config: {
         responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            score: {
-              type: Type.INTEGER,
-              description: 'Weighted credit fraud/ring score from 0 to 100.',
-            },
-            verdict: {
-              type: Type.STRING,
-              description: "Must be 'HIGH RISK', 'MEDIUM RISK', or 'LOW RISK'.",
-            },
-            summary: {
-              type: Type.STRING,
-              description:
-                "Summary of the whole application's coherence or fraud warnings. Mention specific files.",
-            },
-            contradictions: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  title: { type: Type.STRING },
-                  severity: {
-                    type: Type.STRING,
-                    description: "Must be 'high', 'medium', or 'low'",
-                  },
-                  description: { type: Type.STRING },
-                  crossDocSource: {
-                    type: Type.STRING,
-                    description: 'Clashing document tags, e.g. ITR vs Salary',
-                  },
-                },
-                required: ['title', 'severity', 'description', 'crossDocSource'],
-              },
-            },
-            extractedEntities: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  entity: { type: Type.STRING },
-                  value: { type: Type.STRING },
-                  docType: { type: Type.STRING },
-                },
-                required: ['entity', 'value', 'docType'],
-              },
-            },
-            graphNodes: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  id: { type: Type.STRING, description: 'Unique snake-case id of node' },
-                  label: { type: Type.STRING, description: 'Short human label' },
-                  type: {
-                    type: Type.STRING,
-                    description: 'person, property, address, device, employer, or phone',
-                  },
-                  status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
-                  details: { type: Type.STRING },
-                },
-                required: ['id', 'label', 'type', 'status'],
-              },
-            },
-            graphEdges: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  source: { type: Type.STRING, description: 'Must match a valid node ID' },
-                  target: { type: Type.STRING, description: 'Must match a valid node ID' },
-                  relationship: {
-                    type: Type.STRING,
-                    description: 'Short label, e.g. Employed By, Shared Signature',
-                  },
-                  status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
-                },
-                required: ['source', 'target', 'relationship', 'status'],
-              },
-            },
-            tamperedSignatures: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  signature: {
-                    type: Type.STRING,
-                    description: 'Feature/Anomaly detected indicating manipulation',
-                  },
-                  confidence: { type: Type.INTEGER },
-                  explanation: { type: Type.STRING },
-                },
-                required: ['signature', 'confidence', 'explanation'],
-              },
-            },
-            caseFileDetails: {
-              type: Type.OBJECT,
-              properties: {
-                bankActionRequired: {
-                  type: Type.STRING,
-                  description: 'Concrete immediate operations tasks for risk team.',
-                },
-                rbiComplianceWarning: {
-                  type: Type.STRING,
-                  description: 'Direct guidelines under RBI standards.',
-                },
-                recommendingRejection: { type: Type.BOOLEAN },
-              },
-              required: ['bankActionRequired', 'rbiComplianceWarning', 'recommendingRejection'],
-            },
-          },
-          required: [
-            'score',
-            'verdict',
-            'summary',
-            'contradictions',
-            'extractedEntities',
-            'graphNodes',
-            'graphEdges',
-            'tamperedSignatures',
-            'caseFileDetails',
-          ],
-        },
+        responseSchema: analysisConfig.responseSchema,
       },
     });
 

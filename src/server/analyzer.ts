@@ -7,6 +7,7 @@ import {
   GraphEdge,
   TamperedSignature,
 } from '../types.js';
+import { analyzeFraudNetworkDocuments } from '../domain/fraudNetworkAnalysis.js';
 
 const NAME_REGEX = /(?:NAME|Name|APPLICANT|Applicant|Owner|OWNER):\s*([A-Za-z ]+)/gi;
 const PAN_REGEX = /(?:PAN|PAN card|PAN):\s*([A-Z0-9]+)/gi;
@@ -17,8 +18,23 @@ const ITR_REGEX =
   /(?:TOTAL INCOME|GROSS INCOME|TAXABLE INCOME|INCOME|GTI):\s*(?:INR|₹)? *(?:[0-9,.]+)/i;
 const SAL_REGEX =
   /(?:GROSS SALARY|NET SALARY|NET PAYABLE|PAYABLE|SALARY):\s*(?:INR|₹)? *(?:[0-9,.]+)/i;
+const FRAUD_NETWORK_TYPES = new Set([
+  'CALL_RECORD',
+  'TRANSACTION_LOG',
+  'ACCOUNT_LINKAGE',
+  'DEVICE_LOG',
+  'VICTIM_REPORT',
+]);
 
 export function analyzeDocumentsDynamically(documents: DocumentItem[]): AnalysisResult {
+  if (documents.some((document) => FRAUD_NETWORK_TYPES.has(document.type))) {
+    return analyzeFraudNetworkDocuments(documents);
+  }
+
+  return analyzeLegacyDocuments(documents);
+}
+
+function analyzeLegacyDocuments(documents: DocumentItem[]): AnalysisResult {
   const contradictions: Contradiction[] = [];
   const extractedEntities: ExtractedEntity[] = [];
   const graphNodes: GraphNode[] = [];

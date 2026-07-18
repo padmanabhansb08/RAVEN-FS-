@@ -11,10 +11,20 @@ export interface ExtractedEntity {
   docType: string;
 }
 
+export type GraphNodeType =
+  | 'person'
+  | 'property'
+  | 'address'
+  | 'device'
+  | 'employer'
+  | 'phone'
+  | 'account'
+  | 'transaction';
+
 export interface GraphNode {
   id: string;
   label: string;
-  type: 'person' | 'property' | 'address' | 'device' | 'employer' | 'phone';
+  type: GraphNodeType;
   status: 'flagged' | 'neutral' | 'verified';
   details?: string;
 }
@@ -32,6 +42,18 @@ export interface TamperedSignature {
   explanation: string;
 }
 
+export interface CaseFileDetails {
+  // Legacy underwriting fields remain required for backward compatibility.
+  bankActionRequired: string;
+  rbiComplianceWarning: string;
+  recommendingRejection: boolean;
+  lawEnforcementAction?: string;
+  ncrbFilingRecommended?: boolean;
+  courtPackageReady?: boolean;
+  crossJurisdictionNote?: string;
+  evidenceHash?: string;
+}
+
 export interface AnalysisResult {
   score: number; // 0 to 100
   verdict: 'HIGH RISK' | 'MEDIUM RISK' | 'LOW RISK';
@@ -41,11 +63,7 @@ export interface AnalysisResult {
   graphNodes: GraphNode[];
   graphEdges: GraphEdge[];
   tamperedSignatures: TamperedSignature[];
-  caseFileDetails: {
-    bankActionRequired: string;
-    rbiComplianceWarning: string;
-    recommendingRejection: boolean;
-  };
+  caseFileDetails: CaseFileDetails;
   deviceFingerprintLog?: string;
   isSimulated?: boolean;
   aiStatus?: {
@@ -62,10 +80,25 @@ export interface AnalysisResult {
   };
 }
 
+export type LegacyDocumentType =
+  | 'ITR'
+  | 'SALARY_SLIP'
+  | 'PROPERTY_VALUATION'
+  | 'ID_PROOF';
+
+export type FraudNetworkDocumentType =
+  | 'CALL_RECORD'
+  | 'TRANSACTION_LOG'
+  | 'ACCOUNT_LINKAGE'
+  | 'DEVICE_LOG'
+  | 'VICTIM_REPORT';
+
+export type DocumentType = LegacyDocumentType | FraudNetworkDocumentType | 'OTHER';
+
 export interface DocumentItem {
   id: string;
   name: string;
-  type: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER';
+  type: DocumentType;
   content: string;
   metadata?: {
     fileSize?: string;
