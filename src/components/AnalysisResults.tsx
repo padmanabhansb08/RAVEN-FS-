@@ -8,6 +8,8 @@ import { RelationalGraph } from './AnalysisResultsComponents/RelationalGraph';
 import { MetadataSignatures } from './AnalysisResultsComponents/MetadataSignatures';
 import { ComplianceDirectives } from './AnalysisResultsComponents/ComplianceDirectives';
 import { AIStatusBanners } from './AnalysisResultsComponents/AIStatusBanners';
+import { LawEnforcementIntelligence } from './AnalysisResultsComponents/LawEnforcementIntelligence';
+import { isFraudNetworkAnalysis } from '../domain/evidencePackage';
 
 interface AnalysisResultsProps {
   readonly isAnalyzing: boolean;
@@ -56,6 +58,12 @@ export function AnalysisResults({
             selectedNode={selectedNode}
             setSelectedNode={setSelectedNode}
           />
+
+          {isFraudNetworkAnalysis(analysisResult) && (
+            <LawEnforcementIntelligence
+              analysisResult={analysisResult}
+            />
+          )}
 
           <MetadataSignatures analysisResult={analysisResult} />
 

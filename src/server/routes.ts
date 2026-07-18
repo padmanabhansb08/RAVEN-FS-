@@ -1,10 +1,12 @@
 import express from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { createRequire } from 'module';
 import { analyzeDocumentsDynamically } from './analyzer.js';
 import { AnalysisResult, DocumentItem } from '../types.js';
+import { inferDocumentTypeFromFilename } from '../domain/documentType.js';
+import { getGeminiAnalysisConfig } from '../domain/geminiAnalysisConfig.js';
 
 const requireModule = createRequire(import.meta.url);
 const pdfParse = requireModule('pdf-parse');
@@ -79,42 +81,8 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
         content = file.buffer.toString('utf-8');
       }
 
-      // Automatically guess the document type from name
-      let guessedType:
-        | 'CALL_RECORD'
-        | 'TRANSACTION_LOG'
-        | 'ACCOUNT_LINKAGE'
-        | 'DEVICE_LOG'
-        | 'VICTIM_REPORT'
-        | 'OTHER' = 'OTHER';
-      const lowerName = file.originalname.toLowerCase();
-      if (lowerName.includes('call') || lowerName.includes('cdr')) {
-        guessedType = 'CALL_RECORD';
-      } else if (
-        lowerName.includes('txn') ||
-        lowerName.includes('transaction') ||
-        lowerName.includes('upi')
-      ) {
-        guessedType = 'TRANSACTION_LOG';
-      } else if (
-        lowerName.includes('account') ||
-        lowerName.includes('linkage') ||
-        lowerName.includes('kyc')
-      ) {
-        guessedType = 'ACCOUNT_LINKAGE';
-      } else if (
-        lowerName.includes('device') ||
-        lowerName.includes('imei') ||
-        lowerName.includes('fp')
-      ) {
-        guessedType = 'DEVICE_LOG';
-      } else if (
-        lowerName.includes('victim') ||
-        lowerName.includes('complaint') ||
-        lowerName.includes('report')
-      ) {
-        guessedType = 'VICTIM_REPORT';
-      }
+      // Preserve legacy classification while recognizing PS6 intelligence records.
+      const guessedType = inferDocumentTypeFromFilename(file.originalname);
 
       const cleanFileName = file.originalname.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
 
@@ -155,7 +123,10 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
   // Inject client fingerprint logs if any matching context is available
   if (clientFingerprintId && documents.length > 0) {
     documents = documents.map((doc) => {
-      if (doc.type === 'DEVICE_LOG' && doc.content.includes('fp-88a29b4e')) {
+      if (
+        (doc.type === 'ID_PROOF' || doc.type === 'DEVICE_LOG') &&
+        doc.content.includes('fp-88a29b4e')
+      ) {
         return {
           ...doc,
           content: doc.content.replace('fp-88a29b4e', clientFingerprintId),
@@ -220,151 +191,18 @@ router.post('/api/analyze', analyzeLimiter, upload.array('files'), async (req, r
       });
     }
 
-    const systemPrompt = `You are RAVEN-FS, a fraud-ring intelligence engine for law enforcement.
-Your job is to detect coordinated fraud networks by cross-referencing call records, transaction logs, account linkages, and device fingerprints.
-Look for compound risk patterns: shared devices across unrelated accounts, funds routed through mule chains, spoofed-number call sequences, registration-timing collisions.
-Produce intelligence packages suitable for NCRB/cybercrime filing.
-
-Analyze the documents below. You MUST respond in valid JSON format. Follow the strict schema exactly.`;
+    // Domain-routed Gemini config: legacy loan prompt/schema remain intact for non-PS6 docs.
+    const analysisConfig = getGeminiAnalysisConfig(documents || []);
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: [
-        { text: systemPrompt },
+        { text: analysisConfig.systemPrompt },
         { text: `Evaluate these submitted documents collectively:\n${promptDocs}` },
       ],
       config: {
         responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            score: {
-              type: Type.INTEGER,
-              description: 'Weighted credit fraud/ring score from 0 to 100.',
-            },
-            verdict: {
-              type: Type.STRING,
-              description: "Must be 'HIGH RISK', 'MEDIUM RISK', or 'LOW RISK'.",
-            },
-            summary: {
-              type: Type.STRING,
-              description:
-                "Summary of the whole application's coherence or fraud warnings. Mention specific files.",
-            },
-            contradictions: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  title: { type: Type.STRING },
-                  severity: {
-                    type: Type.STRING,
-                    description: "Must be 'high', 'medium', or 'low'",
-                  },
-                  description: { type: Type.STRING },
-                  crossDocSource: {
-                    type: Type.STRING,
-                    description: 'Clashing document tags, e.g. ITR vs Salary',
-                  },
-                },
-                required: ['title', 'severity', 'description', 'crossDocSource'],
-              },
-            },
-            extractedEntities: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  entity: { type: Type.STRING },
-                  value: { type: Type.STRING },
-                  docType: { type: Type.STRING },
-                },
-                required: ['entity', 'value', 'docType'],
-              },
-            },
-            graphNodes: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  id: { type: Type.STRING, description: 'Unique snake-case id of node' },
-                  label: { type: Type.STRING, description: 'Short human label' },
-                  type: {
-                    type: Type.STRING,
-                    description:
-                      'person, property, address, device, employer, phone, account, or transaction',
-                  },
-                  status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
-                  details: { type: Type.STRING },
-                },
-                required: ['id', 'label', 'type', 'status'],
-              },
-            },
-            graphEdges: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  source: { type: Type.STRING, description: 'Must match a valid node ID' },
-                  target: { type: Type.STRING, description: 'Must match a valid node ID' },
-                  relationship: {
-                    type: Type.STRING,
-                    description: 'Short label, e.g. Employed By, Shared Signature',
-                  },
-                  status: { type: Type.STRING, description: 'flagged, neutral, or verified' },
-                },
-                required: ['source', 'target', 'relationship', 'status'],
-              },
-            },
-            tamperedSignatures: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  signature: {
-                    type: Type.STRING,
-                    description: 'Feature/Anomaly detected indicating manipulation',
-                  },
-                  confidence: { type: Type.INTEGER },
-                  explanation: { type: Type.STRING },
-                },
-                required: ['signature', 'confidence', 'explanation'],
-              },
-            },
-            caseFileDetails: {
-              type: Type.OBJECT,
-              properties: {
-                enforcementActionRequired: {
-                  type: Type.STRING,
-                  description:
-                    'Actionable law-enforcement filing guidance, e.g., recommend NCRB/cybercrime-portal filing.',
-                },
-                ncrbComplianceNote: {
-                  type: Type.STRING,
-                  description:
-                    'Guidance on court-admissible packaging and cross-jurisdiction linkages.',
-                },
-                recommendingRejection: { type: Type.BOOLEAN },
-              },
-              required: [
-                'enforcementActionRequired',
-                'ncrbComplianceNote',
-                'recommendingRejection',
-              ],
-            },
-          },
-          required: [
-            'score',
-            'verdict',
-            'summary',
-            'contradictions',
-            'extractedEntities',
-            'graphNodes',
-            'graphEdges',
-            'tamperedSignatures',
-            'caseFileDetails',
-          ],
-        },
+        responseSchema: analysisConfig.responseSchema,
       },
     });
 

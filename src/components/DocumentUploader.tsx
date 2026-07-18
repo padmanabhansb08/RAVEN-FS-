@@ -3,6 +3,7 @@ import { UploadCloud, FileText, CheckCircle2, AlertTriangle, RefreshCw, Scan } f
 import { motion, AnimatePresence } from 'motion/react';
 import { UPLOAD_SUCCESS_DURATION_MS } from '../constants/timing';
 import { DocumentItem } from '../types';
+import { inferDocumentTypeFromFilename } from '../domain/documentType';
 
 interface DocumentUploaderProps {
   onDocumentIngested: (newDoc: DocumentItem) => void;
@@ -55,33 +56,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
         ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
         : `${(file.size / 1024).toFixed(0)} KB`;
 
-    // Guess category
-    let guessedType: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER' = 'OTHER';
-    const lowerName = file.name.toLowerCase();
-    if (lowerName.includes('itr') || lowerName.includes('tax') || lowerName.includes('return')) {
-      guessedType = 'ITR';
-    } else if (
-      lowerName.includes('salary') ||
-      lowerName.includes('slip') ||
-      lowerName.includes('pay') ||
-      lowerName.includes('earnings')
-    ) {
-      guessedType = 'SALARY_SLIP';
-    } else if (
-      lowerName.includes('property') ||
-      lowerName.includes('deed') ||
-      lowerName.includes('valuation') ||
-      lowerName.includes('asset')
-    ) {
-      guessedType = 'PROPERTY_VALUATION';
-    } else if (
-      lowerName.includes('id') ||
-      lowerName.includes('pan') ||
-      lowerName.includes('aadhaar') ||
-      lowerName.includes('passport')
-    ) {
-      guessedType = 'ID_PROOF';
-    }
+    // Keep filename classification aligned with the server for legacy and PS6 records.
+    const guessedType = inferDocumentTypeFromFilename(file.name);
 
     // Set uploading state inspired by FineUploader progress bars
     setCurrentUpload({
@@ -230,6 +206,43 @@ ID SERIAL HASH: APXPK0012P
 HOLDER FULL NAME: ${cleanName.toUpperCase()}
 REGISTERED BIRTH YEAR: 1988
 VALIDITY STATUS: ACTIVE • HIGH INTEGRITY METRIC`;
+
+      case 'CALL_RECORD':
+        return `TELECOM CALL DETAIL RECORD
+CALL ID: CDR-${Date.now()}
+CALLER: +91-90000-00001
+CALLEE: +91-90000-00002
+SPOOFING SIGNATURE: CLI-MISMATCH
+DEVICE IMEI: imei-pending-extraction
+SCRIPT MARKERS: digital arrest; urgent verification transfer`;
+
+      case 'TRANSACTION_LOG':
+        return `FINANCIAL TRANSACTION INTELLIGENCE LOG
+TRANSACTION ID: TXN-${Date.now()}
+FROM ACCOUNT: PENDING
+TO ACCOUNT: PENDING
+AMOUNT: INR 0
+CHANNEL: UPI`;
+
+      case 'ACCOUNT_LINKAGE':
+        return `ACCOUNT LINKAGE REGISTRY
+ACCOUNT: PENDING
+ACCOUNT HOLDER: ${cleanName.toUpperCase()}
+REGISTERED PHONE: PENDING
+REGISTERED DEVICE: PENDING`;
+
+      case 'DEVICE_LOG':
+        return `DEVICE INTELLIGENCE LOG
+DEVICE ID: CanvasFingerprint:pending
+ACCOUNT SESSION: PENDING
+SESSION IP: PENDING`;
+
+      case 'VICTIM_REPORT':
+        return `NCRP VICTIM REPORT
+NAME: ${cleanName.toUpperCase()}
+SCAM TYPE: DIGITAL ARREST
+CONTACTED BY: PENDING
+AMOUNT LOST: INR 0`;
 
       default:
         return `UNSTRUCTURED FIELD OCR TEXT EXTRACTED

@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react';
 import { AnalysisResult } from '../../types';
+import { isFraudNetworkAnalysis } from '../../domain/evidencePackage';
 
 interface VerdictHeaderProps {
   readonly analysisResult: AnalysisResult;
@@ -7,41 +8,67 @@ interface VerdictHeaderProps {
   readonly managedAgentId: string;
 }
 
+const getScorePresentation = (score: number, isFraudNetwork: boolean) => {
+  if (score > 60) {
+    return {
+      scoreColor: '#ef4444',
+      textColorClass: 'text-rose-300',
+      label: isFraudNetwork ? 'Network Threat' : 'High risk',
+    };
+  }
+  if (score > 25) {
+    return {
+      scoreColor: '#f59e0b',
+      textColorClass: 'text-amber-300',
+      label: isFraudNetwork ? 'Review Signal' : 'Review hold',
+    };
+  }
+  return {
+    scoreColor: '#10b981',
+    textColorClass: 'text-emerald-300',
+    label: isFraudNetwork ? 'No Active Cluster' : 'Low risk',
+  };
+};
+
+const getVerdictClass = (verdict: AnalysisResult['verdict']): string => {
+  if (verdict === 'HIGH RISK') {
+    return 'bg-rose-500/10 text-rose-200 border-rose-500/25';
+  }
+  if (verdict === 'MEDIUM RISK') {
+    return 'bg-amber-500/10 text-amber-200 border-amber-500/25';
+  }
+  return 'bg-emerald-500/10 text-emerald-200 border-emerald-500/25';
+};
+
+const getActionTag = (analysisResult: AnalysisResult, isFraudNetwork: boolean): string => {
+  if (isFraudNetwork) {
+    return analysisResult.caseFileDetails.ncrbFilingRecommended ? 'NCRP PACKAGE' : 'MONITOR';
+  }
+  return analysisResult.caseFileDetails.recommendingRejection ? 'Escalate' : 'Clear';
+};
+
 export function VerdictHeader({
   analysisResult,
   useManagedAgent,
   managedAgentId,
 }: VerdictHeaderProps) {
-  const scoreColor =
-    analysisResult.score > 60 ? '#ef4444' : analysisResult.score > 25 ? '#f59e0b' : '#10b981';
-
-  const textScoreColorClass =
-    analysisResult.score > 60
-      ? 'text-rose-300'
-      : analysisResult.score > 25
-        ? 'text-amber-300'
-        : 'text-emerald-300';
-
-  const textScoreLabel =
-    analysisResult.score > 60
-      ? 'High risk'
-      : analysisResult.score > 25
-        ? 'Review hold'
-        : 'Low risk';
-
-  const verdictClass =
-    analysisResult.verdict === 'HIGH RISK'
-      ? 'bg-rose-500/10 text-rose-200 border-rose-500/25'
-      : analysisResult.verdict === 'MEDIUM RISK'
-        ? 'bg-amber-500/10 text-amber-200 border-amber-500/25'
-        : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/25';
+  const isFraudNetwork = isFraudNetworkAnalysis(analysisResult);
+  const {
+    scoreColor,
+    textColorClass: textScoreColorClass,
+    label: textScoreLabel,
+  } = getScorePresentation(analysisResult.score, isFraudNetwork);
+  const verdictClass = getVerdictClass(analysisResult.verdict);
+  const actionTag = getActionTag(analysisResult, isFraudNetwork);
 
   return (
     <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 flex flex-col gap-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-200">
-            Final review summary
+            {isFraudNetwork
+              ? 'Law Enforcement Intelligence Verdict'
+              : 'Final review summary'}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] bg-emerald-500/10 text-emerald-200 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-bold tracking-wider">
@@ -60,11 +87,12 @@ export function VerdictHeader({
             </div>
             <div>
               <span className="font-bold uppercase block text-[10px] text-violet-200">
-                Managed agent active
+                {isFraudNetwork ? 'Fraud Network Agent Evaluated' : 'Managed agent active'}
               </span>
               <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                Workflow <span className="text-slate-200">{managedAgentId}</span> contributed to the
-                final score and relationships.
+                {isFraudNetwork
+                  ? `Agent ${managedAgentId} correlated call, account, transaction, and device intelligence.`
+                  : `Workflow ${managedAgentId} contributed to the final score and relationships.`}
               </p>
             </div>
           </div>
@@ -75,7 +103,9 @@ export function VerdictHeader({
                 Local pattern mode
               </span>
               <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                The workspace is using local heuristics while keeping the interface responsive.
+                {isFraudNetwork
+                  ? 'Evaluated using deterministic fraud-network linkage rules with auditable signal contributions.'
+                  : 'The workspace is using local heuristics while keeping the interface responsive.'}
               </p>
             </div>
           </div>
@@ -136,7 +166,9 @@ export function VerdictHeader({
 
         <div className="grid gap-2 text-[10px] font-mono border-t xl:border-t-0 xl:border-l border-white/10 pt-4 xl:pt-0 xl:pl-5 min-w-[220px]">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase font-medium">Action</span>
+            <span className="text-slate-500 uppercase font-medium">
+              {isFraudNetwork ? 'LE Action' : 'Action'}
+            </span>
             <span
               className={
                 analysisResult.caseFileDetails.recommendingRejection
@@ -144,11 +176,13 @@ export function VerdictHeader({
                   : 'text-emerald-300 font-bold'
               }
             >
-              {analysisResult.caseFileDetails.recommendingRejection ? 'Escalate' : 'Clear'}
+              {actionTag}
             </span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase">Anomalies</span>
+            <span className="text-slate-500 uppercase">
+              {isFraudNetwork ? 'Network Signals' : 'Anomalies'}
+            </span>
             <span
               className={
                 analysisResult.contradictions.length > 0
@@ -160,7 +194,9 @@ export function VerdictHeader({
             </span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-slate-500 uppercase">Nodes</span>
+            <span className="text-slate-500 uppercase">
+              {isFraudNetwork ? 'Graph Entities' : 'Nodes'}
+            </span>
             <span className="text-violet-300 font-bold">{analysisResult.graphNodes.length}</span>
           </div>
         </div>

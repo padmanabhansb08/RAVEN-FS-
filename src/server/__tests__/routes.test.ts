@@ -195,4 +195,129 @@ describe('POST /api/analyze', () => {
     expect(passedDocs[0].name).toBe('Victim_Transaction_Log.pdf');
     expect(passedDocs[0].type).toBe('TRANSACTION_LOG');
   });
+
+  it('classifies PS6 call records without changing legacy filename classification', async () => {
+    await request(app)
+      .post('/api/analyze')
+      .field('engineMode', 'local')
+      .attach('files', Buffer.from('CALL ID: CDR-77'), 'Call_Record_Spoof_Cluster.txt');
+
+    const analyzeDocumentsDynamically = vi.mocked(
+      await import('../analyzer.js'),
+    ).analyzeDocumentsDynamically;
+    const passedDocs = analyzeDocumentsDynamically.mock.calls[0][0];
+
+    expect(passedDocs[0].type).toBe('CALL_RECORD');
+  });
+
+  it('keeps the legacy loan Gemini prompt for non-PS6 documents', async () => {
+    mockGenerateContent.mockResolvedValueOnce({
+      text: JSON.stringify({
+        score: 20,
+        verdict: 'LOW RISK',
+        summary: 'legacy ok',
+        contradictions: [],
+        extractedEntities: [],
+        graphNodes: [],
+        graphEdges: [],
+        tamperedSignatures: [],
+        caseFileDetails: {
+          bankActionRequired: 'Proceed',
+          rbiComplianceWarning: 'None',
+          recommendingRejection: false,
+        },
+      }),
+    });
+
+    await request(app)
+      .post('/api/analyze')
+      .send({
+        engineMode: 'gemini',
+        documents: [
+          {
+            id: '1',
+            name: 'ITR.txt',
+            type: 'ITR',
+            content: 'NAME: RAJESH KUMAR\nEMPLOYER: APEX DIGITAL',
+          },
+        ],
+      });
+
+    const promptText = mockGenerateContent.mock.calls[0][0].contents[0].text as string;
+    expect(promptText).toContain('super sharp pet detective');
+    expect(promptText).toContain('ITR and salary certificates');
+    expect(promptText).not.toContain('Fraud Network Graph Intelligence');
+  });
+
+  it('routes PS6 documents to the fraud-network Gemini prompt', async () => {
+    mockGenerateContent.mockResolvedValueOnce({
+      text: JSON.stringify({
+        score: 90,
+        verdict: 'HIGH RISK',
+        summary: 'mule network detected',
+        contradictions: [],
+        extractedEntities: [],
+        graphNodes: [],
+        graphEdges: [],
+        tamperedSignatures: [],
+        caseFileDetails: {
+          bankActionRequired: 'Preserve records',
+          rbiComplianceWarning: 'Advisory only',
+          recommendingRejection: true,
+          ncrbFilingRecommended: true,
+        },
+      }),
+    });
+
+    const response = await request(app)
+      .post('/api/analyze')
+      .send({
+        engineMode: 'gemini',
+        documents: [
+          {
+            id: '1',
+            name: 'Victim_Report.txt',
+            type: 'VICTIM_REPORT',
+            content: 'NAME: ANANYA RAO\nSCAM TYPE: DIGITAL ARREST',
+          },
+        ],
+      });
+
+    const promptText = mockGenerateContent.mock.calls[0][0].contents[0].text as string;
+    expect(promptText).toContain('Fraud Network Graph Intelligence');
+    expect(promptText).toContain('money mule');
+    expect(promptText).not.toContain('super sharp pet detective');
+    expect(response.body.score).toBe(90);
+    expect(response.body.aiStatus.success).toBe(true);
+  });
+
+  it('falls back to the local analyzer when Gemini returns invalid JSON for PS6 documents', async () => {
+    mockGenerateContent.mockResolvedValueOnce({
+      text: '{not-valid-json',
+    });
+
+    const response = await request(app)
+      .post('/api/analyze')
+      .send({
+        engineMode: 'gemini',
+        documents: [
+          {
+            id: '1',
+            name: 'Device_Log.txt',
+            type: 'DEVICE_LOG',
+            content: 'DEVICE IMEI: imei-1\nACCOUNT SESSION: XXXX-9081',
+          },
+        ],
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.aiStatus.success).toBe(false);
+    expect(response.body.score).toBe(40);
+    expect(response.body.summary).toContain('Fallback active');
+
+    const analyzeDocumentsDynamically = vi.mocked(
+      await import('../analyzer.js'),
+    ).analyzeDocumentsDynamically;
+    expect(analyzeDocumentsDynamically).toHaveBeenCalled();
+  });
 });
