@@ -31,7 +31,7 @@ const downloadEvidencePackage = (evidencePackage: LawEnforcementEvidencePackage)
   const downloadUrl = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = downloadUrl;
-  anchor.download = `${evidencePackage.caseId}_Court_Review_Evidence.json`;
+  anchor.download = `${evidencePackage.caseId}_Evidence_Package.json`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -159,7 +159,7 @@ const AuditTrail = ({
         </span>
       </div>
       <div className="bg-black/30 rounded p-2.5 min-w-0">
-        <span className="text-slate-500 block">SHA-256 INTEGRITY</span>
+        <span className="text-slate-500 block">CONTENT CHECKSUM (SHA-256)</span>
         <span className="text-emerald-400 break-all">{evidencePackage.evidenceHash}</span>
       </div>
     </div>
@@ -218,7 +218,7 @@ export function LawEnforcementIntelligence({
   if (!evidencePackage) {
     return (
       <div className="bg-[#161618] border border-white/5 rounded-xl p-5 text-xs text-slate-400">
-        Preparing SHA-256 evidence package…
+        Preparing export checksum…
       </div>
     );
   }
@@ -234,8 +234,8 @@ export function LawEnforcementIntelligence({
             </h4>
           </div>
           <p className="text-[10px] text-slate-500 mt-1.5 max-w-2xl">
-            Court-oriented, hash-verified investigative package. Legal admissibility requires source
-            authentication and competent authority review.
+            Exportable investigative package with a deterministic content checksum. Legal
+            admissibility requires source authentication and competent authority review.
           </p>
         </div>
         <div className="font-mono text-[9px] lg:text-right">
@@ -309,11 +309,11 @@ export function LawEnforcementIntelligence({
           className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-[10px] font-mono tracking-widest uppercase font-bold px-4 py-2.5 rounded transition cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          {isExporting ? 'Hashing Package…' : 'Download Court-Review Evidence JSON'}
+          {isExporting ? 'Sealing Package…' : 'Download Evidence Package JSON'}
         </button>
         <div className="inline-flex items-center gap-1.5 ml-3 text-[9px] font-mono text-emerald-400">
           <Fingerprint className="w-3.5 h-3.5" />
-          SHA-256 VERIFIED
+          CHECKSUM GENERATED
         </div>
       </div>
     </div>

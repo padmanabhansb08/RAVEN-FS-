@@ -19,7 +19,7 @@ import { ProductBlueprint } from './components/ProductBlueprint';
 
 export default function App() {
   const [documentsState, setDocumentsState] = useState<DocumentItem[]>(INITIAL_DEMO_DOCUMENTS);
-  const [activeDocTab, setActiveDocTab] = useState<string>('doc-itr');
+  const [activeDocTab, setActiveDocTab] = useState<string>(INITIAL_DEMO_DOCUMENTS[0]?.id ?? '');
   const [browserFingerprint, setBrowserFingerprint] = useState<WebFingerprint | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -111,7 +111,16 @@ export default function App() {
         body: formData,
       });
 
-      const data: AnalysisResult = await response.json();
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          typeof payload?.error === 'string'
+            ? payload.error
+            : 'Analysis request failed. Please retry.',
+        );
+      }
+
+      const data: AnalysisResult = payload;
 
       if (data.aiStatus && !data.aiStatus.success && data.aiStatus.isQuotaExceeded) {
         setEngineMode('local');
@@ -200,7 +209,9 @@ export default function App() {
     } catch (err: unknown) {
       console.error('Analysis API execution failure:', err);
       setErrorText(
-        'Relational sweep execution failed connecting online tools. Please check connection.',
+        err instanceof Error
+          ? err.message
+          : 'Relational sweep execution failed. Please check connection or switch to Local mode.',
       );
     } finally {
       setIsAnalyzing(false);
@@ -211,7 +222,8 @@ export default function App() {
   const handleDocumentContentChange = (docId: string, newContent: string) => {
     const updated = documentsState.map((d) => {
       if (d.id === docId) {
-        return { ...d, content: newContent };
+        // Drop the original binary once the analyst edits text so analysis uses the editor.
+        return { ...d, content: newContent, file: undefined };
       }
       return d;
     });
@@ -231,27 +243,6 @@ export default function App() {
 
       <main className="flex-1 px-4 md:px-6 py-5 md:py-6 max-w-7xl w-full mx-auto min-h-0 flex flex-col gap-5">
         <ProductBlueprint />
-
-        <Sidebar
-          documentsState={documentsState}
-          setDocumentsState={setDocumentsState}
-          activeDocTab={activeDocTab}
-          setActiveDocTab={setActiveDocTab}
-          handleDocumentContentChange={handleDocumentContentChange}
-          handleDocumentIngested={handleDocumentIngested}
-          managedAgentId={managedAgentId}
-          setManagedAgentId={setManagedAgentId}
-          useManagedAgent={useManagedAgent}
-          setUseManagedAgent={setUseManagedAgent}
-          customDirectives={customDirectives}
-          setCustomDirectives={setCustomDirectives}
-          engineMode={engineMode}
-          setEngineMode={setEngineMode}
-          isAnalyzing={isAnalyzing}
-          triggerVerification={triggerVerification}
-          browserFingerprint={browserFingerprint}
-          setAnalysisResult={setAnalysisResult}
-        />
 
         <section className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-5 min-h-0">
           <div className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6 flex flex-col gap-4 min-h-0">

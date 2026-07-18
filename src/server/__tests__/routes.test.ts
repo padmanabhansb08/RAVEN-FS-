@@ -3,25 +3,20 @@ import request from 'supertest';
 import express from 'express';
 import router from '../routes.js';
 import { AnalysisResult } from '../../types.js';
-import { GoogleGenAI } from '@google/genai';
-
-// Mock module.createRequire to mock pdf-parse
-vi.mock('module', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('module')>();
-  return {
-    ...actual,
-    createRequire: () => (moduleName: string) => {
-      if (moduleName === 'pdf-parse') {
-        return async (buffer: any) => ({ text: 'mock parsed pdf text' });
-      }
-      const require = actual.createRequire(import.meta.url);
-      return require(moduleName);
-    },
-  };
-});
 
 // Mock the dependencies
 const mockGenerateContent = vi.fn();
+const { mockPdfGetText, mockPdfDestroy } = vi.hoisted(() => ({
+  mockPdfGetText: vi.fn().mockResolvedValue({ text: 'mock parsed pdf text' }),
+  mockPdfDestroy: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('pdf-parse', () => ({
+  PDFParse: class {
+    getText = mockPdfGetText;
+    destroy = mockPdfDestroy;
+  },
+}));
 
 vi.mock('@google/genai', () => {
   const GoogleGenAI = vi.fn().mockImplementation(function () {
@@ -69,9 +64,12 @@ describe('POST /api/analyze', () => {
     app.use(express.json());
     app.use(router);
     vi.clearAllMocks();
+    mockPdfGetText.mockResolvedValue({ text: 'mock parsed pdf text' });
+    mockPdfDestroy.mockResolvedValue(undefined);
 
     // Clear the GEMINI_API_KEY to test specific behavior, or set it when needed
     process.env.GEMINI_API_KEY = 'dummy_key';
+    process.env.VITEST = 'true';
   });
 
   afterEach(() => {
@@ -91,13 +89,58 @@ describe('POST /api/analyze', () => {
     expect(response.body.score).toBe(40);
   });
 
+  it('rejects analysis requests without documents', async () => {
+    const response = await request(app)
+      .post('/api/analyze')
+      .send({ engineMode: 'local', documents: [] });
+
+    expect(response.status).toBe(400);
+    expect(response.type).toBe('application/json');
+    expect(response.body.error).toContain('document');
+  });
+
+  it('rejects unsupported uploaded file types', async () => {
+    const response = await request(app)
+      .post('/api/analyze')
+      .field('engineMode', 'local')
+      .attach('files', Buffer.from('MZ executable'), 'malware.exe');
+
+    expect(response.status).toBe(415);
+    expect(response.type).toBe('application/json');
+    expect(response.body.error).toContain('PDF, TXT, or CSV');
+  });
+
+  it('rejects empty uploaded files', async () => {
+    const response = await request(app)
+      .post('/api/analyze')
+      .field('engineMode', 'local')
+      .attach('files', Buffer.alloc(0), 'Empty_Report.txt');
+
+    expect(response.status).toBe(400);
+    expect(response.type).toBe('application/json');
+    expect(response.body.error).toContain('empty');
+  });
+
+  it('returns a JSON 413 response for oversized files', async () => {
+    const response = await request(app)
+      .post('/api/analyze')
+      .field('engineMode', 'local')
+      .attach('files', Buffer.alloc(10 * 1024 * 1024 + 1), 'Huge_Report.txt');
+
+    expect(response.status).toBe(413);
+    expect(response.type).toBe('application/json');
+    expect(response.body.error).toContain('10 MB');
+  });
+
   it('should enrich with managed agent stats when useManagedAgent is true', async () => {
-    const response = await request(app).post('/api/analyze').send({
-      engineMode: 'local',
-      useManagedAgent: true,
-      managedAgentId: 'test-agent',
-      documents: [],
-    });
+    const response = await request(app)
+      .post('/api/analyze')
+      .send({
+        engineMode: 'local',
+        useManagedAgent: true,
+        managedAgentId: 'test-agent',
+        documents: [{ id: '1', name: 'test.txt', type: 'OTHER', content: 'test' }],
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.managedAgentStats).toBeDefined();
@@ -136,6 +179,7 @@ describe('POST /api/analyze', () => {
     expect(response.status).toBe(200);
     expect(response.body.aiStatus.success).toBe(true);
     expect(response.body.score).toBe(85);
+    expect(mockGenerateContent.mock.calls[0][0].config.httpOptions.timeout).toBe(30_000);
   });
 
   it('should fallback to local engine when Gemini API fails with quota exceeded', async () => {
@@ -164,10 +208,8 @@ describe('POST /api/analyze', () => {
       documents: 'invalid-json-string-not-an-array-or-object',
     });
 
-    expect(response.status).toBe(200);
-    // Should fallback to local engine correctly without crashing
-    expect(response.body.aiStatus.message).toContain('Local Rule Intelligence engine');
-    expect(response.body.score).toBe(40);
+    expect(response.status).toBe(400);
+    expect(response.body.error).toContain('document');
   });
 
   it('should guess document type correctly based on uploaded filename', async () => {
@@ -194,6 +236,9 @@ describe('POST /api/analyze', () => {
     expect(passedDocs.length).toBeGreaterThan(0);
     expect(passedDocs[0].name).toBe('Victim_Transaction_Log.pdf');
     expect(passedDocs[0].type).toBe('TRANSACTION_LOG');
+    expect(passedDocs[0].content).toBe('mock parsed pdf text');
+    expect(mockPdfGetText).toHaveBeenCalled();
+    expect(mockPdfDestroy).toHaveBeenCalled();
   });
 
   it('classifies PS6 call records without changing legacy filename classification', async () => {
@@ -319,5 +364,28 @@ describe('POST /api/analyze', () => {
       await import('../analyzer.js'),
     ).analyzeDocumentsDynamically;
     expect(analyzeDocumentsDynamically).toHaveBeenCalled();
+  });
+
+  it('falls back when Gemini returns valid JSON with an invalid result shape', async () => {
+    mockGenerateContent.mockResolvedValueOnce({ text: '{}' });
+
+    const response = await request(app)
+      .post('/api/analyze')
+      .send({
+        engineMode: 'gemini',
+        documents: [
+          {
+            id: '1',
+            name: 'Victim_Report.txt',
+            type: 'VICTIM_REPORT',
+            content: 'NAME: TEST VICTIM',
+          },
+        ],
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.aiStatus.success).toBe(false);
+    expect(response.body.score).toBe(40);
+    expect(response.body.summary).toContain('Fallback active');
   });
 });
