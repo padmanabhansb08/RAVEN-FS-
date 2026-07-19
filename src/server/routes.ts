@@ -99,7 +99,8 @@ router.get('/api/cases', (_req, res) => {
 
 const analyzeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.VITEST || process.env.NODE_ENV === 'test' ? 1000 : 10,
+  // Demo-friendly ceiling: judges re-run Local/Gemini multiple times in a short window.
+  max: process.env.VITEST || process.env.NODE_ENV === 'test' ? 1000 : 60,
   message: {
     error: 'Too many analysis requests from this IP, please try again after 15 minutes.',
   },
