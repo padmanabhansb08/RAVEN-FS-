@@ -229,7 +229,7 @@ export function Sidebar({
           <button
             onClick={() => {
               setDocumentsState(INITIAL_DEMO_DOCUMENTS);
-              setActiveDocTab('doc-itr');
+              setActiveDocTab(INITIAL_DEMO_DOCUMENTS[0]?.id ?? '');
               triggerVerification(INITIAL_DEMO_DOCUMENTS, browserFingerprint?.id);
             }}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/5"

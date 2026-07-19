@@ -7,20 +7,34 @@ import {
   GraphEdge,
   TamperedSignature,
 } from '../types.js';
+import { analyzeFraudNetworkDocuments } from '../domain/fraudNetworkAnalysis.js';
 
 const NAME_REGEX = /(?:NAME|Name|APPLICANT|Applicant|Owner|OWNER):\s*([A-Za-z ]+)/gi;
 const PAN_REGEX = /(?:PAN|PAN card|PAN):\s*([A-Z0-9]+)/gi;
 const FP_REGEX = /(?:device|fingerprint|fp-)\s*(?:ID|id)?:?\s*([a-fA-F0-9-]+)/gi;
 const EMP_REGEX = /(?:EMPLOYER|Employer|Company|COMPANY):\s*([A-Za-z0-9 ]+)/gi;
 const ADDR_REGEX = /(?:ADDRESS|Address|PROPERTY|Property|Flat|FLAT):\s*([A-Za-z0-9 ,.-]+)/gi;
-const IMEI_REGEX = /(?:IMEI)\s*:?\s*([0-9-]+)/gi;
-const UPI_REGEX = /(?:UPI|HANDLE|BENEFICIARY_UPI)\s*:?\s*([\w.-]+@[\w.-]+)/gi;
-const ACCOUNT_NO_REGEX = /(?:ACCOUNT NO|A\/C|TARGET ACCOUNT)\s*:?\s*([A-Z0-9-]+)/gi;
-const CALLER_ID_REGEX = /(?:CALLER_ID|Phone)\s*:?\s*([+0-9-]+)/gi;
-const TXN_REF_REGEX = /(?:TXN_REF|Transaction)\s*:?\s*([A-Z0-9-]+)/gi;
-const AMOUNT_REGEX = /(?:AMOUNT|CREDIT|DEBIT):\s*(?:INR|₹)? *([0-9,.]+)/i;
+const ITR_REGEX =
+  /(?:TOTAL INCOME|GROSS INCOME|TAXABLE INCOME|INCOME|GTI):\s*(?:INR|₹)? *([0-9,.]+)/i;
+const SAL_REGEX =
+  /(?:GROSS SALARY|NET SALARY|NET PAYABLE|PAYABLE|SALARY):\s*(?:INR|₹)? *([0-9,.]+)/i;
+const FRAUD_NETWORK_TYPES = new Set([
+  'CALL_RECORD',
+  'TRANSACTION_LOG',
+  'ACCOUNT_LINKAGE',
+  'DEVICE_LOG',
+  'VICTIM_REPORT',
+]);
 
 export function analyzeDocumentsDynamically(documents: DocumentItem[]): AnalysisResult {
+  if (documents.some((document) => FRAUD_NETWORK_TYPES.has(document.type))) {
+    return analyzeFraudNetworkDocuments(documents);
+  }
+
+  return analyzeLegacyDocuments(documents);
+}
+
+function analyzeLegacyDocuments(documents: DocumentItem[]): AnalysisResult {
   const contradictions: Contradiction[] = [];
   const extractedEntities: ExtractedEntity[] = [];
   const graphNodes: GraphNode[] = [];
@@ -32,19 +46,17 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
   let summary =
     'Relational sweep successful: Workspace files are digitally sound and structurally aligned on all checks.';
 
-  let txnAmount = 0;
-  let txnUpi = '';
-  let linkageUpi = '';
-  let txnOwner = '';
-  let linkageOwner = '';
+  let itrGross = 0;
+  let salaryMonthly = 0;
+  let salaryAnnualized = 0;
+
+  let itrEmployer = '';
+  let salaryEmployer = '';
 
   const people = new Set<string>();
   const employers = new Set<string>();
   const addresses = new Set<string>();
   const devices = new Set<string>();
-  const accounts = new Set<string>();
-  const transactions = new Set<string>();
-  const phones = new Set<string>();
 
   const items = documents || [];
 
@@ -59,60 +71,9 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
         const val = m.split(':')[1]?.trim();
         if (val && val.length > 3) {
           people.add(val);
-          extractedEntities.push({ entity: val, value: `${type} Signee/Owner`, docType: type });
-          if (type === 'TRANSACTION_LOG') txnOwner = val;
-          if (type === 'ACCOUNT_LINKAGE') linkageOwner = val;
+          extractedEntities.push({ entity: val, value: `${type} Signee`, docType: type });
         }
       });
-    }
-
-    // Parse Accounts
-    const accMatches = text.match(ACCOUNT_NO_REGEX);
-    if (accMatches) {
-      accMatches.forEach((m) => {
-        const val = m.split(':')[1]?.trim();
-        if (val) accounts.add(val);
-      });
-    }
-
-    // Parse Transactions
-    const txnMatches = text.match(TXN_REF_REGEX);
-    if (txnMatches) {
-      txnMatches.forEach((m) => {
-        const val = m.split(':')[1]?.trim();
-        if (val) transactions.add(val);
-      });
-    }
-
-    // Parse Phones
-    const phoneMatches = text.match(CALLER_ID_REGEX);
-    if (phoneMatches) {
-      phoneMatches.forEach((m) => {
-        const val = m.split(':')[1]?.trim();
-        if (val) phones.add(val);
-      });
-    }
-
-    // Parse UPI
-    const upiMatches = text.match(UPI_REGEX);
-    if (upiMatches) {
-      upiMatches.forEach((m) => {
-        const val = m.split(':')[1]?.trim();
-        if (val) {
-          extractedEntities.push({ entity: val, value: 'UPI Handle', docType: type });
-          if (type === 'TRANSACTION_LOG') txnUpi = val;
-          if (type === 'ACCOUNT_LINKAGE') linkageUpi = val;
-        }
-      });
-    }
-
-    // Parse Amounts
-    const amtMatches = text.match(AMOUNT_REGEX);
-    if (amtMatches) {
-      const parsedAmt = parseInt(amtMatches[1].replace(/,/g, ''), 10);
-      if (!isNaN(parsedAmt)) {
-        txnAmount = parsedAmt;
-      }
     }
 
     // Parse PAN / Tax identifiers
@@ -141,6 +102,46 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
           devices.add(val);
         }
       });
+    }
+
+    // Parse Employers
+    const empMatches = text.match(EMP_REGEX);
+    if (empMatches) {
+      empMatches.forEach((m) => {
+        const val = m.split(':')[1]?.trim();
+        if (val && val.length > 3) {
+          employers.add(val);
+          if (type === 'ITR') itrEmployer = val;
+          if (type === 'SALARY_SLIP') salaryEmployer = val;
+        }
+      });
+    }
+
+    // Parse Addresses
+    const addrMatches = text.match(ADDR_REGEX);
+    if (addrMatches) {
+      addrMatches.forEach((m) => {
+        const val = m.split(':')[1]?.trim();
+        if (val && val.length > 8) {
+          const shortAddr = val.split(',')[0].trim() || val;
+          addresses.add(shortAddr);
+        }
+      });
+    }
+
+    // Parse Financial statements values
+    if (type === 'ITR') {
+      const itrMatches = text.match(ITR_REGEX);
+      if (itrMatches?.[1]) {
+        itrGross = parseInt(itrMatches[1].replace(/,/g, ''), 10);
+      }
+    }
+    if (type === 'SALARY_SLIP') {
+      const salMatches = text.match(SAL_REGEX);
+      if (salMatches?.[1]) {
+        salaryMonthly = parseInt(salMatches[1].replace(/,/g, ''), 10);
+        salaryAnnualized = salaryMonthly * 12;
+      }
     }
 
     // Verify EXIF author fields
@@ -173,48 +174,59 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
   });
 
   // Real-time comparative logic
-  if (txnUpi && linkageUpi) {
-    const lowerTxnOwner = txnOwner.toLowerCase();
-    const lowerLinkageOwner = linkageOwner.toLowerCase();
-    if (lowerTxnOwner && lowerLinkageOwner && lowerTxnOwner !== lowerLinkageOwner) {
+  if (itrEmployer && salaryEmployer) {
+    const lowerItrEmployer = itrEmployer.toLowerCase();
+    const lowerSalaryEmployer = salaryEmployer.toLowerCase();
+    if (lowerItrEmployer !== lowerSalaryEmployer) {
+      if (
+        !lowerItrEmployer.includes(lowerSalaryEmployer) &&
+        !lowerSalaryEmployer.includes(lowerItrEmployer)
+      ) {
+        contradictions.push({
+          title: 'Employer Brand Identification Conflict',
+          severity: 'medium',
+          description: `Government tax filings register '${itrEmployer}' as prime employer, but salary slip certifies payment from '${salaryEmployer}'. Signifies distinct discrepancies.`,
+          crossDocSource: 'ITR vs Salary Slip',
+        });
+      }
+    }
+  }
+
+  if (itrGross > 0 && salaryAnnualized > 0) {
+    const ratio = Math.max(itrGross, salaryAnnualized) / Math.min(itrGross, salaryAnnualized);
+    if (ratio > 1.25) {
+      const severity = ratio > 2 ? 'high' : 'medium';
       contradictions.push({
-        title: 'Mule Account Identity Mismatch',
-        severity: 'high',
-        description: `Transaction log states beneficiary is '${txnOwner}', but KYC registry for the same linkage shows '${linkageOwner}'. High probability of mule routing.`,
-        crossDocSource: 'Transaction Log vs KYC Registry',
+        title: 'Income Margin Misalignment',
+        severity,
+        description: `Tax reported Gross total income is ₹${itrGross.toLocaleString()}, whereas payslip states ₹${salaryMonthly.toLocaleString()} monthly (₹${salaryAnnualized.toLocaleString()} annualized). This represents an unsupported ${(ratio * 100 - 100).toFixed(0)}% deviation.`,
+        crossDocSource: 'ITR FY26 vs Payslip',
       });
     }
   }
 
-  if (devices.size > 0 && accounts.size > 1) {
-    contradictions.push({
-      title: 'Device Footprint Collision across Accounts',
-      severity: 'high',
-      description: `Risk engine detects identical client device browser fingerprints [${Array.from(devices).join(', ')}] accessing multiple distinct accounts. Coordinated fraud ring hazard flagged.`,
-      crossDocSource: 'Fingerprint SDK vs Account Linkages',
-    });
-  }
-
   if (devices.size > 0 && people.size > 1) {
     contradictions.push({
-      title: 'Device Footprint Collision across Persons',
+      title: 'Device Footprint Collision',
       severity: 'high',
-      description: `Identical device fingerprints executing submissions for discrete identities. Coordinated transaction hazard flagged.`,
+      description: `Risk engine detects identical client device browser fingerprints [${Array.from(devices).join(', ')}] executing submissions for discrete candidate applicants. Coordinated transaction hazard flagged.`,
       crossDocSource: 'Fingerprint SDK Ledger',
     });
   }
 
-  const spoofingText = items.some((d) => {
+  const propertiesText = items.some((d) => {
     const lower = d.content?.toLowerCase();
-    return lower?.includes('spoof');
+    return (
+      lower?.includes('lien') || lower?.includes('double mortgage') || lower?.includes('concurrent')
+    );
   });
-  if (spoofingText) {
+  if (propertiesText) {
     contradictions.push({
-      title: 'Telecom Spoofing Detected',
+      title: 'Concurrent Asset Mortgage overlap',
       severity: 'high',
       description:
-        'Call records indicate caller ID spoofing from known high-risk ranges matching victim reports.',
-      crossDocSource: 'Telecom Metadata',
+        'Property deeds register active, concurrent mortgages logged at multiple regional underwriters within the current week.',
+      crossDocSource: 'Property Stamp Registrar',
     });
   }
 
@@ -270,59 +282,49 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
     personNodeIds.push('node-person-1');
   }
 
-  let accIdx = 1;
-  accounts.forEach((a) => {
-    const id = `node-acc-${accIdx++}`;
+  let empIdx = 1;
+  employers.forEach((e) => {
+    const id = `node-emp-${empIdx++}`;
     graphNodes.push({
       id,
-      label: `Account: ${a}`,
-      type: 'account',
-      status: 'flagged',
-      details: 'Extracted financial account',
+      label: e,
+      type: 'employer',
+      status:
+        salaryEmployer && itrEmployer && salaryEmployer !== itrEmployer ? 'flagged' : 'verified',
+      details: 'Discovered employer linkage',
     });
-    personNodeIds.forEach((pid) =>
+
+    // Link persons to employer
+    personNodeIds.forEach((pid) => {
       graphEdges.push({
         source: pid,
         target: id,
-        relationship: 'Registered Owner',
+        relationship: 'Employed By',
+        status:
+          salaryEmployer && itrEmployer && salaryEmployer !== itrEmployer ? 'flagged' : 'verified',
+      });
+    });
+  });
+
+  let addrIdx = 1;
+  addresses.forEach((a) => {
+    const id = `node-addr-${addrIdx++}`;
+    graphNodes.push({
+      id,
+      label: a,
+      type: 'address',
+      status: 'neutral',
+      details: 'Discovered address registry',
+    });
+
+    personNodeIds.forEach((pid) => {
+      graphEdges.push({
+        source: pid,
+        target: id,
+        relationship: 'Claims Residence',
         status: 'neutral',
-      }),
-    );
-  });
-
-  let txnIdx = 1;
-  transactions.forEach((t) => {
-    const id = `node-txn-${txnIdx++}`;
-    graphNodes.push({
-      id,
-      label: `TXN: ${t}`,
-      type: 'transaction',
-      status: 'flagged',
-      details: 'Extracted transaction',
+      });
     });
-    personNodeIds.forEach((pid) =>
-      graphEdges.push({ source: pid, target: id, relationship: 'Executed TXN', status: 'flagged' }),
-    );
-  });
-
-  let phoneIdx = 1;
-  phones.forEach((p) => {
-    const id = `node-phone-${phoneIdx++}`;
-    graphNodes.push({
-      id,
-      label: p,
-      type: 'phone',
-      status: 'flagged',
-      details: 'Call record endpoint',
-    });
-    personNodeIds.forEach((pid) =>
-      graphEdges.push({
-        source: pid,
-        target: id,
-        relationship: 'Caller/Receiver',
-        status: 'flagged',
-      }),
-    );
   });
 
   let devIdx = 1;
@@ -355,15 +357,15 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
     });
   }
 
-  const enforcementActionRequired =
+  const bankActionRequired =
     score > 60
-      ? 'MANDATED AUDIT CONTROL. Freeze routing lines, file secure suspicious transaction logs to cybercrime agencies instantly.'
-      : 'Proceed standard pathways. No anomalies detected.';
+      ? 'MANDATED AUDIT CONTROL. Freeze candidate application routing lines, file secure suspicious transaction logs to regulatory agencies instantly.'
+      : 'Proceed standard credit routing pathways. No anomalies detected.';
 
-  const ncrbComplianceNote =
+  const rbiComplianceWarning =
     score > 60
-      ? 'NCRB Alert: Cross-document credit anomalies represent structural declaration non-compliance for court admissibility.'
-      : 'Transaction structures fully conform to legal guidelines.';
+      ? 'Section 45IA Alert: Cross-document credit anomalies represent structural declaration non-compliance.'
+      : 'Transaction structures fully conform to RBI guidelines.';
 
   return {
     score,
@@ -375,8 +377,8 @@ export function analyzeDocumentsDynamically(documents: DocumentItem[]): Analysis
     graphEdges,
     tamperedSignatures,
     caseFileDetails: {
-      enforcementActionRequired,
-      ncrbComplianceNote,
+      bankActionRequired,
+      rbiComplianceWarning,
       recommendingRejection: score > 60,
     },
   };

@@ -108,6 +108,40 @@ describe('GraphDatabase.findFraudRings', () => {
     expect(reports[0].title).toBe('Multi-Identity Hardware Collision Ring');
   });
 
+  it('identifies a shared device connected to multiple mule accounts', () => {
+    const nodes: GraphNode[] = [
+      { id: 'device_mule', label: 'IMEI 356789104563210', type: 'device', status: 'flagged' },
+      { id: 'account_9081', label: 'Account 9081', type: 'account', status: 'flagged' },
+      { id: 'account_4472', label: 'Account 4472', type: 'account', status: 'flagged' },
+    ];
+    const edges: GraphEdge[] = [
+      {
+        source: 'account_9081',
+        target: 'device_mule',
+        relationship: 'Used Shared Device',
+        status: 'flagged',
+      },
+      {
+        source: 'account_4472',
+        target: 'device_mule',
+        relationship: 'Used Shared Device',
+        status: 'flagged',
+      },
+    ];
+
+    const reports = new GraphDatabase(nodes, edges).findFraudRings();
+
+    expect(reports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          patternType: 'shared_device_accounts',
+          title: 'Shared Device Mule Account Cluster',
+          severity: 'high',
+        }),
+      ]),
+    );
+  });
+
   it('should not flag Pattern 1 if device is connected to non-person nodes', () => {
     const nodes: GraphNode[] = [
       { id: 'device_3', label: 'Device B', type: 'device', status: 'neutral' },

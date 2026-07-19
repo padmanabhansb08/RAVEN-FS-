@@ -3,6 +3,7 @@ import { UploadCloud, FileText, CheckCircle2, AlertTriangle, RefreshCw, Scan } f
 import { motion, AnimatePresence } from 'motion/react';
 import { UPLOAD_SUCCESS_DURATION_MS } from '../constants/timing';
 import { DocumentItem } from '../types';
+import { inferDocumentTypeFromFilename } from '../domain/documentType';
 
 interface DocumentUploaderProps {
   onDocumentIngested: (newDoc: DocumentItem) => void;
@@ -36,17 +37,23 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
   const processFile = (file: File) => {
     setErrorText('');
 
-    // Validate format
-    const allowedExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.docx'];
+    // Validate format — keep client allow-list aligned with server.
+    const allowedExtensions = ['.pdf', '.txt', '.csv'];
     const extMatch = /\.[^/.]+$/.exec(file.name);
     const fileExt = extMatch ? extMatch[0].toLowerCase() : '';
 
-    if (
-      !allowedExtensions.includes(fileExt) &&
-      !file.type.match('image/*') &&
-      file.type !== 'application/pdf'
-    ) {
-      setErrorText('Unsupported document format. Please upload PDF, PNG, JPG, JPEG, TXT or DOCX.');
+    if (!allowedExtensions.includes(fileExt)) {
+      setErrorText('Unsupported document format. Please upload PDF, TXT, or CSV.');
+      return;
+    }
+
+    if (file.size === 0) {
+      setErrorText('Uploaded file is empty. Please choose a non-empty document.');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorText('File exceeds the 10 MB upload limit.');
       return;
     }
 
@@ -55,33 +62,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
         ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
         : `${(file.size / 1024).toFixed(0)} KB`;
 
-    // Guess category
-    let guessedType: 'ITR' | 'SALARY_SLIP' | 'PROPERTY_VALUATION' | 'ID_PROOF' | 'OTHER' = 'OTHER';
-    const lowerName = file.name.toLowerCase();
-    if (lowerName.includes('itr') || lowerName.includes('tax') || lowerName.includes('return')) {
-      guessedType = 'ITR';
-    } else if (
-      lowerName.includes('salary') ||
-      lowerName.includes('slip') ||
-      lowerName.includes('pay') ||
-      lowerName.includes('earnings')
-    ) {
-      guessedType = 'SALARY_SLIP';
-    } else if (
-      lowerName.includes('property') ||
-      lowerName.includes('deed') ||
-      lowerName.includes('valuation') ||
-      lowerName.includes('asset')
-    ) {
-      guessedType = 'PROPERTY_VALUATION';
-    } else if (
-      lowerName.includes('id') ||
-      lowerName.includes('pan') ||
-      lowerName.includes('aadhaar') ||
-      lowerName.includes('passport')
-    ) {
-      guessedType = 'ID_PROOF';
-    }
+    // Keep filename classification aligned with the server for legacy and PS6 records.
+    const guessedType = inferDocumentTypeFromFilename(file.name);
 
     // Set uploading state inspired by FineUploader progress bars
     setCurrentUpload({
@@ -121,19 +103,26 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
       } else {
         clearInterval(interval);
 
-        // Finalize loading OCR mock content based on file contents or template
-        // Read file if text, otherwise generate authentic OCR statement
-        if (file.type === 'text/plain') {
+        // Finalize loading. Text files are read locally; PDFs keep the binary for server parse.
+        if (fileExt === '.txt' || fileExt === '.csv' || file.type === 'text/plain') {
           const reader = new FileReader();
           reader.onload = (event) => {
             const fileContent = event.target?.result as string;
-            triggerDocumentCreation(file.name, guessedType, fileSizeStr, fileContent, file);
+            triggerDocumentCreation(file.name, guessedType, fileSizeStr, fileContent);
+          };
+          reader.onerror = () => {
+            setErrorText('Failed to read the uploaded text file.');
+            setCurrentUpload(null);
           };
           reader.readAsText(file);
         } else {
-          // Generate realistic OCR text output based on guessed type
-          const generatedOcr = generateMockOcrContent(file.name, guessedType);
-          triggerDocumentCreation(file.name, guessedType, fileSizeStr, generatedOcr, file);
+          const previewNotice = [
+            `PDF UPLOAD: ${file.name}`,
+            'Preview is unavailable in the editor.',
+            'Analysis will use server-side PDF text extraction from the uploaded file.',
+            'If you edit this panel, your edited text becomes the analysis source instead.',
+          ].join('\n');
+          triggerDocumentCreation(file.name, guessedType, fileSizeStr, previewNotice, file);
         }
       }
     }, 750);
@@ -190,59 +179,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onDocumentIn
     fileInputRef.current?.click();
   };
 
-  // Highly detailed OCR simulator mirroring actual bank document templates
-  const generateMockOcrContent = (fileName: string, type: string): string => {
-    const cleanName = fileName.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
-
-    switch (type) {
-      case 'ITR':
-        return `INCOME TAX RETURN DEPT OF INDIA (ITR-1 SAHAJ)
-ASSESSMENT YEAR: 2026-27 | FY: 2025-26
-PAN: APXPK0012P | FILING NAME: ${cleanName.toUpperCase()}
-ADDRESS: PLOT 824, METROPOLITAN VISTAS, MUMBAI - 400012
-FILING DATE: 15-MAY-2026 | STATUS: ACKNOWLEDGED
-GROSS REVENUE DECLARED: INR 28,50,050
-TAXABLE CREDITS: INR 25,12,000
-EMPLOYMENT STATUS: REGULAR SALARIED INDIVIDUAL
-EMPLOYER CLASSIFICATION: PRIVATE LIMITED FIRM`;
-
-      case 'SALARY_SLIP':
-        return `SALARY STATEMENT FOR MONTHLY PAYROLL APR 2026
-OFFICIAL EMPLOYEE CODE: EMP-30491 || BENEFICIARY: ${cleanName.toUpperCase()}
-DESIGNATION: SENIOR ASSOCIATE
-EMPLOYER OFFICE: METROPOLITAN SOLUTIONS GROUP CO
-GROSS CREDIT DETAILS: INR 2,20,000 / Month (Annualised Gross: INR 26,40,000)
-NET DISBURSED AMOUNT: INR 1,98,400
-ACCOUNTS CREDITED: STATE BANK OF INDIA - SB A/C: 109281318239`;
-
-      case 'PROPERTY_VALUATION':
-        return `GOVT LAND & REGISTER SYSTEM STATE COMPLIANCE REPORT
-VALUATION REFERENCE: CERT-VAL-8821038A
-OFFICIAL SECURITY OWNERS: ${cleanName.toUpperCase()}
-TARGET PROPERTY DETAILS: METROPOLITAN VISTAS, SUITE 824, MUMBAI FLATS
-MARKET VALUATION VALUE: INR 2,50,00,000
-LIENS/MORTGAGES DECLARED: NONE (MORTGAGE REGISTRY STATUS: UNENCUMBERED)`;
-
-      case 'ID_PROOF':
-        return `CENTRAL UNIQUE IDENTITY REGISTRATION (UIDAI)
-DOCUMENT CLASSIFICATION: PERMANENT ACCOUNT NUMBER (PAN) CERTIFICATE
-ID SERIAL HASH: APXPK0012P
-HOLDER FULL NAME: ${cleanName.toUpperCase()}
-REGISTERED BIRTH YEAR: 1988
-VALIDITY STATUS: ACTIVE • HIGH INTEGRITY METRIC`;
-
-      default:
-        return `UNSTRUCTURED FIELD OCR TEXT EXTRACTED
-INGESTED FILE NAME: ${fileName}
-PARSED LOG TIMESTAMP: ${new Date().toISOString()}
-CONTENT PARSED:
--------------------------------------------
-Raw textual extract of file: ${cleanName}.
-This document is prepared for auditing. Validated by FineUploader core security layers.
-DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
-    }
-  };
-
   return (
     <div className="bg-black/40 border border-white/5 shadow-inner rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
@@ -264,7 +200,7 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
         className="hidden"
         multiple={false}
         onChange={handleChange}
-        accept=".pdf,.png,.jpg,.jpeg,.txt,.docx"
+        accept=".pdf,.txt,.csv"
       />
 
       {/* Main Drag & Drop Zone */}
@@ -310,8 +246,8 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
             </span>
           </p>
           <p className="text-[10px] text-slate-500 font-mono leading-relaxed mt-2 max-w-sm mx-auto">
-            Supporting call records, transaction logs, account linkages, device fingerprints, victim
-            reports
+            Supporting PDF, TXT, and CSV evidence: call records, transaction logs, account linkages,
+            device fingerprints, and victim reports
           </p>
         </div>
       </div>

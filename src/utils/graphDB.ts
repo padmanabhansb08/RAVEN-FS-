@@ -10,7 +10,12 @@ export interface TraversalStep {
 }
 
 export interface TraversalReport {
-  patternType: 'reused_template' | 'shared_address' | 'identity_bridge' | 'clean_path';
+  patternType:
+    | 'reused_template'
+    | 'shared_address'
+    | 'identity_bridge'
+    | 'shared_device_accounts'
+    | 'clean_path';
   title: string;
   description: string;
   steps: TraversalStep[];
@@ -119,6 +124,38 @@ export class GraphDatabase {
             `shared by separate individuals (${connectedPersons.map((p) => p.label).join(' & ')}). ` +
             'This represents a classic automated multi-account fraud ring bypassing single-IP isolation walls.',
           steps,
+          severity: 'high',
+        });
+      }
+
+      const connectedAccounts = incomingEdges
+        .map((edge) => this.vertices.get(edge.target))
+        .filter((node): node is GraphNode => node?.type === 'account');
+
+      if (connectedAccounts.length > 1) {
+        reports.push({
+          patternType: 'shared_device_accounts',
+          title: 'Shared Device Mule Account Cluster',
+          description:
+            `Device ${device.label} is linked to multiple accounts ` +
+            `(${connectedAccounts.map((account) => account.label).join(' & ')}), ` +
+            'indicating coordinated mule-account control.',
+          steps: [
+            {
+              nodeId: device.id,
+              label: device.label,
+              type: device.type,
+              comment: 'Shared infrastructure anchor',
+            },
+            ...connectedAccounts.map((account) => ({
+              nodeId: account.id,
+              label: account.label,
+              type: account.type,
+              relationship: 'Used Shared Device',
+              direction: 'in' as const,
+              comment: `Account ${account.label} authenticated through the shared device.`,
+            })),
+          ],
           severity: 'high',
         });
       }

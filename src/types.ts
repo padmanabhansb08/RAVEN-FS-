@@ -11,18 +11,20 @@ export interface ExtractedEntity {
   docType: string;
 }
 
+export type GraphNodeType =
+  | 'person'
+  | 'property'
+  | 'address'
+  | 'device'
+  | 'employer'
+  | 'phone'
+  | 'account'
+  | 'transaction';
+
 export interface GraphNode {
   id: string;
   label: string;
-  type:
-    | 'person'
-    | 'property'
-    | 'address'
-    | 'device'
-    | 'employer'
-    | 'phone'
-    | 'account'
-    | 'transaction';
+  type: GraphNodeType;
   status: 'flagged' | 'neutral' | 'verified';
   details?: string;
 }
@@ -34,22 +36,26 @@ export interface GraphEdge {
   status: 'flagged' | 'neutral' | 'verified';
 }
 
-export type DocumentType =
-  | 'CALL_RECORD'
-  | 'TRANSACTION_LOG'
-  | 'ACCOUNT_LINKAGE'
-  | 'DEVICE_LOG'
-  | 'VICTIM_REPORT'
-  | 'ITR'
-  | 'SALARY_SLIP'
-  | 'PROPERTY_VALUATION'
-  | 'ID_PROOF'
-  | 'OTHER';
-
 export interface TamperedSignature {
   signature: string;
   confidence: number; // 0 to 100
   explanation: string;
+}
+
+export interface CaseFileDetails {
+  // Legacy underwriting fields remain required for backward compatibility.
+  bankActionRequired: string;
+  rbiComplianceWarning: string;
+  recommendingRejection: boolean;
+  // PS6 / law-enforcement fields (additive).
+  lawEnforcementAction?: string;
+  ncrbFilingRecommended?: boolean;
+  courtPackageReady?: boolean;
+  crossJurisdictionNote?: string;
+  evidenceHash?: string;
+  // Team RAVEN-FS field aliases (optional; UI may prefer these when present).
+  enforcementActionRequired?: string;
+  ncrbComplianceNote?: string;
 }
 
 export interface AnalysisResult {
@@ -61,13 +67,7 @@ export interface AnalysisResult {
   graphNodes: GraphNode[];
   graphEdges: GraphEdge[];
   tamperedSignatures: TamperedSignature[];
-  caseFileDetails: {
-    enforcementActionRequired?: string;
-    ncrbComplianceNote?: string;
-    bankActionRequired?: string;
-    rbiComplianceWarning?: string;
-    recommendingRejection: boolean;
-  };
+  caseFileDetails: CaseFileDetails;
   deviceFingerprintLog?: string;
   isSimulated?: boolean;
   aiStatus?: {
@@ -83,6 +83,21 @@ export interface AnalysisResult {
     active: boolean;
   };
 }
+
+export type LegacyDocumentType =
+  | 'ITR'
+  | 'SALARY_SLIP'
+  | 'PROPERTY_VALUATION'
+  | 'ID_PROOF';
+
+export type FraudNetworkDocumentType =
+  | 'CALL_RECORD'
+  | 'TRANSACTION_LOG'
+  | 'ACCOUNT_LINKAGE'
+  | 'DEVICE_LOG'
+  | 'VICTIM_REPORT';
+
+export type DocumentType = LegacyDocumentType | FraudNetworkDocumentType | 'OTHER';
 
 export interface DocumentItem {
   id: string;

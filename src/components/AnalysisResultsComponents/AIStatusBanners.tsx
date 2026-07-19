@@ -43,8 +43,7 @@ export function AIStatusBanners({ analysisResult }: AIStatusBannersProps) {
           </span>
           <p className="text-[11px] text-slate-400 font-sans mt-0.5 leading-relaxed">
             Evaluated using RAVEN&apos;s fully optimized multi-document coherence ruleset. Set
-            GEMINI_API_KEY inside Settings drawer to fully enable LLM deep-reasoning tree
-            structures.
+            GEMINI_API_KEY in your local .env file to enable live Gemini analysis.
           </p>
         </div>
       </div>
