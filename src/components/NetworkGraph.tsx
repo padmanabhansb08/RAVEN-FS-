@@ -118,14 +118,14 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
   const activeNode = nodes.find((n) => n.id === selectedNodeId);
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 glass-panel rounded-xl border border-white/5 p-5 mt-4 min-h-[460px] shadow-lg">
+    <div className="flex flex-col xl:flex-row gap-6 glass-panel rounded-none border border-white/5 p-5 mt-4 min-h-[460px] shadow-lg">
       {/* SVG Canvas Area */}
-      <div className="flex-1 relative border border-white/5 rounded-lg overflow-hidden bg-black/40 shadow-inner min-h-[380px] flex items-center justify-center">
+      <div className="flex-1 relative border border-white/5 rounded-none overflow-hidden bg-black/40 shadow-inner min-h-[380px] flex items-center justify-center">
         {/* Absolute indicators in background */}
-        <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-md text-xs font-mono shadow-sm">
-          <Network className="w-4 h-4 text-indigo-400 animate-pulse" />
-          <span className="text-slate-400">Layer 3 Graph Traversal Active:</span>
-          <span className="text-indigo-400 font-semibold">{nodes.length} nodes mapped</span>
+        <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full text-xs font-mono shadow-sm">
+          <Network className="w-4 h-4 text-blue-400 animate-pulse" />
+          <span className="text-slate-400 uppercase tracking-widest text-[9px] font-bold">Layer 3 Graph Active:</span>
+          <span className="text-blue-400 font-bold uppercase tracking-wider text-[9px]">{nodes.length} nodes mapped</span>
         </div>
 
         {Object.keys(coords).length > 0 && (
@@ -248,7 +248,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
                     cx={coord.x}
                     cy={coord.y}
                     r={isSelected ? '22' : '18'}
-                    className={`transition-all duration-300 fill-black/60 stroke-2 drop-shadow-[0_0_8px_rgba(99,102,241,0.3)] ${
+                    className={`transition-all duration-300 fill-black/60 stroke-2 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)] ${
                       isSelected
                         ? 'stroke-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]'
                         : isFlagged
@@ -295,10 +295,10 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
       </div>
 
       {/* Selected Node Details Sidepanel */}
-      <div className="w-full xl:w-72 glass-panel border border-white/5 rounded-lg p-4 flex flex-col justify-between shadow-inner relative z-10">
+      <div className="w-full xl:w-72 glass-panel border border-white/5 rounded-none p-5 flex flex-col justify-between shadow-inner relative z-10">
         <div>
-          <h4 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase border-b border-white/5 pb-2 flex items-center gap-1.5">
-            <ShieldAlert className="w-4 h-4 text-indigo-400" />
+          <h4 className="text-[11px] font-mono font-bold tracking-widest text-slate-400 uppercase border-b border-white/5 pb-3 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-blue-400" />
             Node Diagnostics
           </h4>
 
@@ -382,4 +382,3 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({ nodes, edges, onSele
     </div>
   );
 };
-export default NetworkGraph;

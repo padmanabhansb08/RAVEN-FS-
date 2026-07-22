@@ -65,40 +65,42 @@ export function AnalysisResults({
     );
   } else {
     content = (
-      <div className="glass-panel border border-white/5 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[500px]">
-        <Database className="w-12 h-12 text-slate-700 animate-pulse" />
-        <h3 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase mt-5">
-          Workspace Awaiting Active Scan
+      <div className="glass-panel border border-white/5 rounded-none p-10 text-center flex flex-col items-center justify-center min-h-[500px] shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-teal-500/20 rounded-full blur-xl animate-pulse" />
+          <Database className="w-16 h-16 text-slate-600 relative z-10" />
+        </div>
+        <h3 className="text-xs font-mono font-bold tracking-[0.3em] text-slate-400 uppercase">
+          Intelligence Module Standby
         </h3>
-        <p className="text-xs text-slate-500 font-sans mt-2 max-w-sm">
-          Upload call records, transaction logs, and account linkages. RAVEN will detect coordinated
-          fraud patterns and map the ring topology.
+        <p className="text-sm text-slate-500 font-sans mt-4 max-w-sm leading-relaxed font-light">
+          Upload call records, transaction logs, and account linkages. The intelligence engine will automatically execute multi-layered analysis.
         </p>
       </div>
     );
   }
 
   return (
-    <section className="flex flex-col gap-4 min-h-0">
-      <div className="glass-panel rounded-3xl border border-white/10 p-4 md:p-5 flex items-center justify-between gap-4">
+    <section className="flex flex-col gap-6 min-h-0">
+      <div className="glass-panel rounded-none border border-white/10 p-5 md:p-6 flex items-center justify-between gap-4 shadow-[0_15px_40px_rgba(0,0,0,0.2)]">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.24em] text-violet-200 font-semibold">
-            Results view
+          <div className="text-[10px] uppercase tracking-[0.2em] text-teal-300 font-bold">
+            Intelligence Matrix
           </div>
-          <h2 className="mt-1 text-lg font-semibold text-white">
-            Analysis output and final reporting
+          <h2 className="mt-2 text-xl font-bold text-white tracking-tight">
+            Analysis output and structured intelligence
           </h2>
         </div>
-        <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-400">
-          <LayoutDashboard className="h-3.5 w-3.5 text-violet-300" />
-          <span>Structured review panel</span>
+        <div className="hidden md:flex items-center gap-3 rounded-full border border-teal-500/20 bg-teal-500/10 px-4 py-2 text-xs font-semibold text-teal-100 shadow-inner">
+          <LayoutDashboard className="h-4 w-4 text-teal-300" />
+          <span>Dashboard Active</span>
         </div>
       </div>
 
       {content}
       {errorText && (
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/8 p-3 flex items-center gap-2 text-xs font-mono text-rose-200 select-text">
-          <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
+        <div className="rounded-none border border-rose-500/20 bg-rose-500/10 p-4 flex items-center gap-3 text-xs font-mono text-rose-200 select-text shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+          <AlertTriangle className="w-5 h-5 shrink-0 text-rose-500" />
           <span>{errorText}</span>
         </div>
       )}

@@ -4,36 +4,40 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 export default function ExecutiveOverview({ data }: { data: any }) {
   if (!data) return null;
   return (
-    <section className="bg-slate-900 rounded-xl p-6 border border-white/5">
-      <h2 className="text-xl font-semibold text-white mb-4">Executive Health Overview</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <section className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Overall Health', value: data.overallScore },
           { label: 'Engineering Quality', value: data.engineeringScore },
           { label: 'Security Score', value: data.securityScore },
           { label: 'Maintainability', value: data.maintainabilityScore },
         ].map((item) => (
-          <div key={item.label} className="bg-slate-800 p-4 rounded-lg">
+          <div key={item.label} className="surface p-4 rounded-none">
             <div className="text-sm text-slate-400">{item.label}</div>
             <div
-              className={`text-3xl font-bold ${item.value > 80 ? 'text-green-400' : 'text-yellow-400'}`}
+              className={`text-3xl font-semibold ${item.value > 80 ? 'text-emerald-300' : 'text-amber-300'}`}
             >
               {item.value}
             </div>
           </div>
         ))}
       </div>
-      <div className="h-64">
+      <div className="h-64 rounded-none border border-white/10 bg-black/20 p-3">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data.history}>
             <XAxis dataKey="date" stroke="#64748b" />
             <YAxis stroke="#64748b" />
-            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#111827',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            />
             <Line
               isAnimationActive={false}
               type="monotone"
               dataKey="score"
-              stroke="#818cf8"
+              stroke="#a78bfa"
               strokeWidth={2}
             />
           </LineChart>

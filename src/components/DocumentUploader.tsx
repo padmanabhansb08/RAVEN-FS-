@@ -244,17 +244,15 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
   };
 
   return (
-    <div className="bg-black/40 border border-white/5 shadow-inner rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-      <div className="flex justify-between items-center border-b border-white/5 pb-2 relative z-10">
+    <div className="glass-panel rounded-none border border-white/10 p-4 flex flex-col gap-3 relative overflow-hidden group shadow-[0_15px_40px_rgba(0,0,0,0.3)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(20,184,166,0.12),transparent_30%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+      <div className="flex justify-between items-center border-b border-white/10 pb-2.5 relative z-10">
         <div className="flex items-center gap-2">
-          <Scan className="w-4 h-4 text-indigo-400" />
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
-            MULTI-SOURCE DOCUMENT INGESTION LAYER
-          </span>
+          <Scan className="w-4 h-4 text-teal-400" />
+          <span className="text-sm font-bold text-slate-200 tracking-wide">Document Upload</span>
         </div>
-        <span className="text-[10px] text-slate-400 font-mono font-bold tracking-widest uppercase bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
-          Layer 1 Active
+        <span className="text-[10px] text-teal-200 font-bold bg-teal-500/10 px-3 py-1 rounded-none border border-teal-500/20 shadow-[0_0_10px_rgba(20,184,166,0.15)] uppercase tracking-wider">
+          Ready
         </span>
       </div>
 
@@ -274,10 +272,10 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
         onDragLeave={handleDrag}
         onDrop={handleDrop}
         onClick={onButtonClick}
-        className={`relative overflow-hidden border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 z-10 ${
+        className={`relative overflow-hidden border border-dashed rounded-none p-8 text-center cursor-pointer transition-all duration-500 flex flex-col items-center justify-center gap-4 z-10 ${
           dragActive
-            ? 'border-indigo-400 bg-indigo-900/20 scale-[0.99] glow-indigo shadow-inner'
-            : 'border-white/10 bg-black/40 hover:border-indigo-500/50 hover:bg-slate-900/50'
+            ? 'border-teal-400 bg-teal-500/10 scale-[0.99] shadow-[0_0_30px_rgba(20,184,166,0.2)]'
+            : 'border-white/10 bg-black/20 hover:border-teal-400/50 hover:bg-white/5 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)]'
         }`}
       >
         {dragActive && (
@@ -285,41 +283,40 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
             initial={{ top: '-10%' }}
             animate={{ top: '110%' }}
             transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-            className="absolute left-0 right-0 h-1 bg-indigo-400/60 shadow-[0_0_20px_rgba(99,102,241,1)] z-0 pointer-events-none"
+            className="absolute left-0 right-0 h-1 bg-blue-400/60 shadow-[0_0_20px_rgba(59,130,246,1)] z-0 pointer-events-none"
           />
         )}
 
         <motion.div
           animate={{ scale: dragActive ? 1.15 : 1 }}
-          className={`relative z-10 p-3 rounded-full border transition-colors ${
+          className={`relative z-10 p-4 rounded-none border transition-all duration-300 ${
             dragActive
-              ? 'bg-indigo-600/20 border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.3)]'
-              : 'bg-white/5 border-white/5 group-hover:bg-indigo-900/30 group-hover:border-indigo-500/30'
+              ? 'bg-teal-500/15 border-teal-400/50 shadow-[0_0_20px_rgba(20,184,166,0.3)]'
+              : 'bg-white/5 border-white/10 group-hover:bg-teal-500/10 group-hover:border-teal-400/30 group-hover:shadow-[0_0_15px_rgba(20,184,166,0.15)]'
           }`}
         >
           <UploadCloud
-            className={`w-8 h-8 transition-colors ${dragActive ? 'text-indigo-400 animate-pulse' : 'text-slate-400 group-hover:text-indigo-300'}`}
+            className={`w-8 h-8 transition-colors ${dragActive ? 'text-teal-300 animate-pulse' : 'text-slate-400 group-hover:text-teal-300'}`}
           />
         </motion.div>
 
-        <div className="space-y-1.5 relative z-10">
-          <p className="text-[13px] font-semibold text-slate-200">
-            Drag and Drop Document, or{' '}
-            <span className="text-indigo-400 font-mono underline decoration-indigo-500/30 underline-offset-4 decoration-2">
-              Browse Files
+        <div className="space-y-2 relative z-10">
+          <p className="text-sm font-bold text-slate-200 tracking-wide">
+            Drag and drop a file, or{' '}
+            <span className="text-teal-400 hover:text-teal-300 cursor-pointer underline decoration-teal-400/30 underline-offset-4 decoration-2 transition-colors">
+              browse
             </span>
           </p>
-          <p className="text-[10px] text-slate-500 font-mono leading-relaxed mt-2 max-w-sm mx-auto">
-            Supporting call records, transaction logs, account linkages, device fingerprints, victim
-            reports
+          <p className="text-sm text-slate-400 leading-relaxed max-w-sm mx-auto font-light">
+            Supports PDFs, images, text files, and document scans.
           </p>
         </div>
       </div>
 
       {errorText && (
-        <div className="bg-red-500/5 border border-red-500/10 p-2.5 rounded text-[11px] font-mono text-red-400 flex items-center gap-1.5 animate-shake">
-          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-          <span>{errorText}</span>
+        <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-none text-sm text-rose-200 flex items-center gap-2 shadow-[0_5px_15px_rgba(244,63,94,0.15)]">
+          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+          <span className="font-medium">{errorText}</span>
         </div>
       )}
 
@@ -327,24 +324,26 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
       <AnimatePresence>
         {currentUpload && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-panel border border-white/5 rounded-xl p-4 space-y-4 relative z-10"
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="glass-panel rounded-none border border-white/10 p-5 space-y-4 relative z-10 shadow-[0_10px_30px_rgba(0,0,0,0.2)] overflow-hidden"
           >
-            <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2.5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-none blur-2xl -mr-10 -mt-10 pointer-events-none" />
+            <div className="flex items-center justify-between text-xs border-b border-white/10 pb-3 relative z-10">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-1.5 bg-indigo-500/10 rounded-md border border-indigo-500/20 shrink-0">
-                  <FileText className="w-5 h-5 text-indigo-400 animate-pulse" />
+                <div className="p-2 bg-teal-500/10 rounded-none border border-teal-500/20 shrink-0 shadow-[0_0_10px_rgba(20,184,166,0.1)]">
+                  <FileText className="w-5 h-5 text-teal-400 animate-pulse" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-slate-200 font-semibold truncate leading-none mb-1.5 text-[12px]">
+                  <p className="text-slate-100 font-bold truncate leading-none mb-1.5 text-sm tracking-wide">
                     {currentUpload.name}
                   </p>
-                  <div className="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
-                    <span>Size: {currentUpload.size}</span>
-                    <span>•</span>
-                    <span className="text-indigo-400 uppercase font-bold tracking-wider">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium uppercase tracking-wider text-[9px]">
+                    <span>{currentUpload.size}</span>
+                    <span className="text-teal-400/50">•</span>
+                    <span className="text-teal-400 font-bold">
                       {currentUpload.type} category
                     </span>
                   </div>
@@ -352,42 +351,39 @@ DPI parameters: 300dpi. EXIF integrity checks: Passed.`;
               </div>
 
               {currentUpload.status === 'completed' ? (
-                <span className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[10px] bg-blue-500/10 text-blue-300 border border-blue-500/20 font-bold uppercase tracking-wider shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.15)]">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Ingested
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold uppercase shrink-0 glow-indigo">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[10px] bg-teal-500/10 text-teal-300 border border-teal-500/20 font-bold uppercase tracking-wider shrink-0 shadow-[0_0_10px_rgba(20,184,166,0.15)]">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   Working
                 </span>
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
-                <span className="text-indigo-300 truncate max-w-[80%] italic tracking-wide">
-                  {currentUpload.stage}
-                </span>
-                <span className="font-bold text-indigo-400">{currentUpload.progress}%</span>
+            <div className="space-y-3 relative z-10">
+              <div className="flex justify-between items-center text-xs text-slate-400 font-medium">
+                <span className="text-teal-200 truncate max-w-[80%]">{currentUpload.stage}</span>
+                <span className="font-bold text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">{currentUpload.progress}%</span>
               </div>
 
-              {/* Smooth glowing progress track bar */}
-              <div className="w-full bg-black/60 rounded-full h-2 overflow-hidden border border-white/5 shadow-inner">
+              <div className="w-full bg-black/40 rounded-none h-2.5 overflow-hidden border border-white/5 shadow-inner">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 font-mono ${
+                  className={`h-full rounded-none transition-all duration-300 font-mono ${
                     currentUpload.status === 'completed'
-                      ? 'bg-emerald-500 shadow-sm shadow-emerald-500/40'
-                      : 'bg-indigo-500 shadow-sm shadow-indigo-500/60 relative overflow-hidden'
+                      ? 'bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                      : 'bg-gradient-to-r from-teal-500 to-blue-500 relative overflow-hidden shadow-[0_0_10px_rgba(20,184,166,0.5)]'
                   }`}
                   style={{ width: `${currentUpload.progress}%` }}
                 >
                   {currentUpload.status !== 'completed' && (
                     <motion.div
-                      className="absolute inset-0 bg-white/20"
+                      className="absolute inset-0 bg-white/30"
                       initial={{ x: '-100%' }}
                       animate={{ x: '100%' }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                     />
                   )}
                 </div>

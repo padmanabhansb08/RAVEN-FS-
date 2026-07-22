@@ -4,22 +4,22 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 export default function CodeQuality({ data }: { data: any }) {
   if (!data) return null;
   return (
-    <section className="bg-slate-900 rounded-xl p-6 border border-white/5">
+    <section className="bg-slate-900 rounded-none p-6 border border-white/5">
       <h2 className="text-xl font-semibold text-white mb-4">Code Quality Metrics</h2>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center">
+        <div className="bg-slate-800 p-4 rounded-none flex justify-between items-center">
           <span className="text-slate-400">Linting Errors</span>
           <span className="text-2xl font-bold text-white">{data.lintErrors}</span>
         </div>
-        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center">
+        <div className="bg-slate-800 p-4 rounded-none flex justify-between items-center">
           <span className="text-slate-400">Duplicate Code</span>
           <span className="text-2xl font-bold text-white">{data.duplicateCode}%</span>
         </div>
-        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center">
+        <div className="bg-slate-800 p-4 rounded-none flex justify-between items-center">
           <span className="text-slate-400">Dead Code Files</span>
           <span className="text-2xl font-bold text-white">{data.deadCode}</span>
         </div>
-        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center">
+        <div className="bg-slate-800 p-4 rounded-none flex justify-between items-center">
           <span className="text-slate-400">Tech Debt Score</span>
           <span
             className={`text-2xl font-bold ${data.techDebtScore > 80 ? 'text-green-400' : 'text-yellow-400'}`}

@@ -1,6 +1,6 @@
 import { GraphNode, GraphEdge } from '../types';
 
-export interface TraversalStep {
+interface TraversalStep {
   nodeId: string;
   label: string;
   type: string;

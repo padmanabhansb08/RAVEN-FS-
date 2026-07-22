@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 export default function TestCoverage({ data }: { data: any }) {
   if (!data) return null;
   return (
-    <section className="bg-slate-900 rounded-xl p-6 border border-white/5">
+    <section className="bg-slate-900 rounded-none p-6 border border-white/5">
       <h2 className="text-xl font-semibold text-white mb-4">Test & Coverage Analytics</h2>
       <div className="grid grid-cols-3 gap-4 mb-4">
         {[

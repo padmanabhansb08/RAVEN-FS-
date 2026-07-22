@@ -8,18 +8,18 @@ interface DashboardPanelProps {
 
 export function DashboardPanel({ title, eyebrow, children }: DashboardPanelProps) {
   return (
-    <section className="glass-panel rounded-3xl border border-white/10 p-5 md:p-6">
-      <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3">
+    <section className="glass-panel rounded-none border border-white/10 p-5 md:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+      <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
         <div>
           {eyebrow && (
-            <div className="text-[10px] uppercase tracking-[0.24em] text-violet-200 font-semibold">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-teal-300 font-bold">
               {eyebrow}
             </div>
           )}
-          <h2 className="mt-1 text-xl font-semibold text-white">{title}</h2>
+          <h2 className="mt-1.5 text-xl font-bold text-white tracking-wide">{title}</h2>
         </div>
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="mt-5">{children}</div>
     </section>
   );
 }

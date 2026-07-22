@@ -4,18 +4,18 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 export default function SecurityDashboard({ data }: { data: any }) {
   if (!data) return null;
   return (
-    <section className="bg-slate-900 rounded-xl p-6 border border-white/5">
+    <section className="bg-slate-900 rounded-none p-6 border border-white/5">
       <h2 className="text-xl font-semibold text-white mb-4">Security Dashboard</h2>
       <div className="flex justify-between mb-6">
-        <div className="text-center p-4 bg-slate-800 rounded-lg flex-1 mr-2 border border-red-500/20">
+        <div className="text-center p-4 bg-slate-800 rounded-none flex-1 mr-2 border border-red-500/20">
           <div className="text-red-400 font-bold text-3xl">{data.critical}</div>
           <div className="text-xs text-slate-400 uppercase">Critical</div>
         </div>
-        <div className="text-center p-4 bg-slate-800 rounded-lg flex-1 mx-2 border border-orange-500/20">
+        <div className="text-center p-4 bg-slate-800 rounded-none flex-1 mx-2 border border-orange-500/20">
           <div className="text-orange-400 font-bold text-3xl">{data.high}</div>
           <div className="text-xs text-slate-400 uppercase">High</div>
         </div>
-        <div className="text-center p-4 bg-slate-800 rounded-lg flex-1 ml-2 border border-yellow-500/20">
+        <div className="text-center p-4 bg-slate-800 rounded-none flex-1 ml-2 border border-yellow-500/20">
           <div className="text-yellow-400 font-bold text-3xl">{data.moderate}</div>
           <div className="text-xs text-slate-400 uppercase">Moderate</div>
         </div>

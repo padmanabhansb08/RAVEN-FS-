@@ -34,7 +34,7 @@ export interface GraphEdge {
   status: 'flagged' | 'neutral' | 'verified';
 }
 
-export type DocumentType =
+type DocumentType =
   | 'CALL_RECORD'
   | 'TRANSACTION_LOG'
   | 'ACCOUNT_LINKAGE'
@@ -100,7 +100,7 @@ export interface DocumentItem {
   file?: File;
 }
 
-export interface CaseStudy {
+interface CaseStudy {
   id: string;
   title: string;
   description: string;
